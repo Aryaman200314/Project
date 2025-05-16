@@ -107,7 +107,7 @@ const MentorHome = () => {
                 <div className="home-content">
                     {/* Sidebar */}
                     <div className="sidebar">
-                        <h3>Mentiee</h3>
+                        <h3>Mentee</h3>
                         {mentors.map((mentor) => (
                             <div
                                 key={mentor.id}
