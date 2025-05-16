@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import './Home.css';
+import './MentorHome.css';
 import { FaUserCircle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import Notifications from './Notification/Notifications';
+import MentorNotifications from './Notification/MentorNotifications';
 import {
     taskData,
     assignmentData,
     getTaskCompletionRate,
     getAssignmentCompletionRate,
-} from './Data/performanceData';
+} from '../Data/performanceData';
 import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
-import logo from './logo.jpeg'
+import logo from '../logo.jpeg'
 const taskCompletionRate = getTaskCompletionRate();
 const assignmentCompletionRate = getAssignmentCompletionRate();
 
@@ -18,31 +18,30 @@ const assignmentCompletionRate = getAssignmentCompletionRate();
 const mentors = [
     {
         id: 1,
-        name: 'John Doe',
-        designation: 'Senior Developer',
-        email: 'john.doe@example.com',
+        name: 'Aryaman sharma',
+        designation: 'Devops Trainee',
+        email: 'aryaman@example.com',
         phone: '1234567890',
         // image: '/images/john.jpg',
         location: 'Noida',
         workMode: 'WFO',
-        mentees: ['Aryaman Sharma']
     },
-    {
-        id: 2,
-        name: 'Jane Smith',
-        designation: 'Cloud Architect',
-        email: 'jane.smith@example.com',
-        phone: '9876543210',
-        // image: '/images/jane.jpg',
-        location: 'Noida',
-        workMode: 'WFH',
-        mentees: ['Rahul Gupta', 'Anita Mehra']
-    }
+    // {
+    //     id: 2,
+    //     name: 'Jane Smith',
+    //     designation: 'Cloud Architect',
+    //     email: 'jane.smith@example.com',
+    //     phone: '9876543210',
+    //     // image: '/images/jane.jpg',
+    //     location: 'Noida',
+    //     workMode: 'WFH',
+    //     mentees: ['Rahul Gupta', 'Anita Mehra']
+    // }
 ];
 // Dummy values - replace with dynamic data
 
 
-const Home = () => {
+const MentorHome = () => {
     const navigate = useNavigate();
     const [showPopup, setShowPopup] = useState(false);
     const [selectedMentor, setSelectedMentor] = useState(null);
@@ -52,8 +51,8 @@ const Home = () => {
     };
 
     const user = {
-        name: 'Aryaman Sharma',
-        email: 'aryaman@example.com',
+        name: 'Mentor',
+        email: 'Mentor@example.com',
     };
 
     // const handleView = () => { 
@@ -98,7 +97,7 @@ const Home = () => {
                             <p><strong>Phone:</strong> {selectedMentor.phone}</p>
                             <p><strong>Location:</strong> {selectedMentor.location}</p>
                             <p><strong>Work Mode:</strong> {selectedMentor.workMode}</p>
-                            <p><strong>Mentees:</strong> {selectedMentor.mentees.join(', ')}</p>
+                            {/* <p><strong>Mentees:</strong> {selectedMentor.mentees.join(', ')}</p> */}
                             <button className="close-button" onClick={() => setSelectedMentor(null)}>Close</button>
                         </div>
                     </div>
@@ -108,7 +107,7 @@ const Home = () => {
                 <div className="home-content">
                     {/* Sidebar */}
                     <div className="sidebar">
-                        <h3>Mentors</h3>
+                        <h3>Mentiee</h3>
                         {mentors.map((mentor) => (
                             <div
                                 key={mentor.id}
@@ -135,20 +134,20 @@ const Home = () => {
                             Hi,&nbsp;<span className="user-name">{user.name}</span>
                         </h1>
                         <div className='grid-btn'>
-                            <button onClick={() => navigate('/upload-task')} className="action-btn">
-                                Upload Task
+                            <button onClick={() => navigate('/mentor/task')} className="action-btn">
+                                Task
                             </button>
-                            <button onClick={() => navigate('/assignment-upload')} className="action-btn">
-                                Upload Assignment
+                            <button onClick={() => navigate('/mentor/assignment')} className="action-btn">
+                                 Assignment
                             </button>
                             <button onClick={() => navigate('/timeline')} className="action-btn">
                                 Check Timeline
                             </button>
-                            <button onClick={() => navigate('/view-records')} className="action-btn">
+                            <button onClick={() => navigate('/mentor/approve')} className="action-btn">
                                 View Records
                             </button>
-                            <button onClick={() => navigate('/contact-mentor')} className='action-btn'>
-                                Contact Mentor
+                            <button onClick={() => navigate('/contant-mentee')} className='action-btn'>
+                                Contact Mentee
                             </button>
                             <button onClick={() => navigate('/analysis')} className='action-btn'>
                                 Analysis
@@ -219,7 +218,7 @@ const Home = () => {
 
                     </div>
                     <div className='sidebar-right'>
-                        <Notifications />
+                        <MentorNotifications />
                     </div>
 
 
@@ -235,5 +234,5 @@ const Home = () => {
     );
 };
 
-export default Home;
+export default MentorHome;
 

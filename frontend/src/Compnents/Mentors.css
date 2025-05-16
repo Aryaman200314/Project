@@ -1,0 +1,85 @@
+.mentors-container {
+    padding: 40px;
+    text-align: center;
+  }
+  
+  .mentors-grid {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .mentor-card {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    border-radius: 10px;
+    background: #f5f5f5;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+  }
+  
+  .mentor-card:hover {
+    transform: scale(1.05);
+  }
+  
+  .mentor-hover img {
+    width: 100%;
+    height: 60%;
+    object-fit: cover;
+  }
+  
+  .mentor-info {
+    padding: 10px;
+    background: #fff;
+    text-align: left;
+    font-size: 14px;
+  }
+  
+  /* Modal popup */
+  .mentor-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  .modal-content {
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    width: 400px;
+    text-align: center;
+    position: relative;
+  }
+  
+  .modal-content img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 60px;
+    margin-bottom: 15px;
+  }
+  
+  .modal-content p {
+    margin: 5px 0;
+  }
+  
+  .close-btn {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #888;
+  }
+  

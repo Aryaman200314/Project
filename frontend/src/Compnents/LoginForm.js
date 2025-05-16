@@ -70,6 +70,12 @@ const LoginForm = () => {
       <button type="button" onClick={() => navigate("/signup")}>
         Go to Signup
       </button>
+      <button type="button" onClick={() => navigate("/mentor/home")}> 
+        Mentor
+      </button>
+      <button type="button" onClick={() => navigate("/home")}> 
+        Mentee
+      </button>
     </div>
   );
 };
