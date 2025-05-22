@@ -9,35 +9,44 @@ const LoginForm = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
+    role: "mentee", // default to mentee
   });
 
   const [errors, setErrors] = useState({});
-
+  const [serverError, setServerError] = useState("");
   const validateForm = () => {
     const newErrors = {};
     if (!formData.email) newErrors.email = "Email is required";
     if (!formData.password) newErrors.password = "Password is required";
+    if (!formData.role) newErrors.role = "Role is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+  
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: "" });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    setErrors({ ...errors, [name]: "" });
+    setServerError("");
   };
+  
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
-      axios
-        .post("http://localhost:5000/api/login", formData) // Replace with your backend login route
-        .then((response) => {
-          console.log("Login Success:", response.data);
-          navigate("/user-info", { state: response.data });
-        })
-        .catch((error) => {
-          console.error("Login Error:", error.response?.data || error.message);
-        });
+      try {
+        const res = await axios.post("http://localhost:5000/api/auth/login", formData);
+        const user = res.data.user;
+        if (formData.role === "mentee") {
+          navigate("/home", { state: formData });
+        } else {
+          navigate("/mentor/home", { state: formData });
+        }
+      } catch (error) {
+        const msg = error.response?.data?.message || "Login failed";
+        setServerError(msg);
+      }
     }
   };
 
@@ -63,18 +72,20 @@ const LoginForm = () => {
         />
         {errors.password && <p className="error">{errors.password}</p>}
 
+        {serverError && <p className="error">{serverError}</p>}
+        
         <button type="submit">Login</button>
       </form>
+      <label>Role:</label>
+      <select name="role" value={formData.role} onChange={handleChange}>
+        <option value="mentee">Mentee</option>
+        <option value="mentor">Mentor</option>
+      </select>
+      {errors.role && <p className="error">{errors.role}</p>}
 
       <p>Don't have an account?</p>
       <button type="button" onClick={() => navigate("/signup")}>
         Go to Signup
-      </button>
-      <button type="button" onClick={() => navigate("/mentor/home")}> 
-        Mentor
-      </button>
-      <button type="button" onClick={() => navigate("/home")}> 
-        Mentee
       </button>
     </div>
   );

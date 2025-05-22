@@ -10,8 +10,8 @@ const SignupForm = () => {
     firstName: "",
     lastName: "",
     email: "",
-    phoneNumber: "",
     password: "",
+    role: "mentee",
   });
 
   const [errors, setErrors] = useState({});
@@ -21,31 +21,38 @@ const SignupForm = () => {
     if (!formData.firstName) newErrors.firstName = "First name is required";
     if (!formData.lastName) newErrors.lastName = "Last name is required";
     if (!formData.email) newErrors.email = "Email is required";
-    if (!formData.phoneNumber) newErrors.phoneNumber = "Phone number is required";
     if (!formData.password) newErrors.password = "Password is required";
+    if (!formData.role) newErrors.role = "Role is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+  
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setErrors({ ...errors, [e.target.name]: "" });
   };
+  
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
       axios
-        .post("http://localhost:5000/api/signup", formData) // Replace with your actual backend route
+        .post("http://localhost:5000/api/signup", formData)
         .then((response) => {
           console.log("Signup Success:", response.data);
-          navigate("/user-info", { state: formData });
+          if (formData.role === "mentee") {
+            navigate("/login", { state: formData });
+          } else {
+            navigate("/login", { state: formData });
+          }
         })
         .catch((error) => {
           console.error("Signup Error:", error.response?.data || error.message);
         });
     }
   };
+  
 
   return (
     <div className="form-container">
@@ -78,15 +85,6 @@ const SignupForm = () => {
         />
         {errors.email && <p className="error">{errors.email}</p>}
 
-        <label>Phone Number:</label>
-        <input
-          type="tel"
-          name="phoneNumber"
-          value={formData.phoneNumber}
-          onChange={handleChange}
-        />
-        {errors.phoneNumber && <p className="error">{errors.phoneNumber}</p>}
-
         <label>Password:</label>
         <input
           type="password"
@@ -95,9 +93,16 @@ const SignupForm = () => {
           onChange={handleChange}
         />
         {errors.password && <p className="error">{errors.password}</p>}
+        <label>Role:</label>
+      <select name="role" value={formData.role} onChange={handleChange}>
+        <option value="mentee">Mentee</option>
+        <option value="mentor">Mentor</option>
+      </select>
+      {errors.role && <p className="error">{errors.role}</p>}
 
         <button type="submit">Submit</button>
       </form>
+  
 
       <p>Already have an account?</p>
       <button type="button" onClick={() => navigate("/login")}>
