@@ -38,6 +38,7 @@ const LoginForm = () => {
       try {
         const res = await axios.post("http://localhost:5000/api/auth/login", formData);
         const user = res.data.user;
+        localStorage.setItem("userEmail", formData.email);
         if (formData.role === "mentee") {
           navigate("/home", { state: formData });
         } else {
@@ -51,6 +52,7 @@ const LoginForm = () => {
   };
 
   return (
+    <>
     <div className="form-container">
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
@@ -87,7 +89,10 @@ const LoginForm = () => {
       <button type="button" onClick={() => navigate("/signup")}>
         Go to Signup
       </button>
+      
     </div>
+    <button onClick={()=> navigate("/admin/login")}>Admin panel</button>
+    </>
   );
 };
 

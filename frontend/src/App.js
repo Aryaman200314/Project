@@ -15,6 +15,8 @@ import MentorHome from './Compnents/MentorPortal/MentorHome'
 import Task from './Compnents/MentorPortal/Task/Task'
 import MentorAssignment from './Compnents/MentorPortal/MentorAssignment/MentorAssignment'
 import ContactMentee from './Compnents/MentorPortal/ContactMentee/ContactMentee'
+import AdminLogin from './Compnents/Admin panel/Login/AdminLogin'
+import AssignPage from './Compnents/Admin panel/AdminHome/AssignPage'
 function App() {
   return (
     <div>
@@ -44,7 +46,17 @@ function App() {
           <Route path="/mentor/task" element={<Task/>}/>
           <Route path="/mentor/assignment" element={<MentorAssignment/>}/>
           <Route path="/contant-mentee" element={<ContactMentee/>}/>
+
+          { /* Admin panel */}
+          <Route path='/admin/login' element={<AdminLogin/>}/>
+          <Route path='/admin/dashboard' element={<AssignPage/>}/>
+
+
+
         </Routes>
+
+
+       
       </BrowserRouter>
     </div>
   )

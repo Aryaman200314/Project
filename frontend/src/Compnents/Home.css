@@ -311,3 +311,12 @@ hr {
 .logo-img {
   border-radius: 10px;
 }
+.mentee-name{
+  color: #007bff;
+}
+.hi-username {
+  font-weight: 900;
+}
+.mentee-small{
+  font-size: small;
+}

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import './MentorHome.css';
 import { FaUserCircle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useEffect } from 'react';
 import MentorNotifications from './Notification/MentorNotifications';
 import {
     taskData,
@@ -45,26 +47,42 @@ const MentorHome = () => {
     const navigate = useNavigate();
     const [showPopup, setShowPopup] = useState(false);
     const [selectedMentor, setSelectedMentor] = useState(null);
-
+    const [user, setUser] = useState(null);
+    
     const handleLogout = () => {
         navigate('/login');
     };
 
-    const user = {
-        name: 'Mentor',
-        email: 'Mentor@example.com',
-    };
+    // const user = {
+    //     name: 'Mentor',
+    //     email: 'Mentor@example.com',
+    // };
 
     // const handleView = () => { 
     //     navigate('/analysis');
     // }
+    useEffect(() => {
+        const fetchUserByEmail = async () => {
+            try {
+                const email = localStorage.getItem("userEmail");
+                if (!email) return;
+    
+                const res = await axios.get(`http://localhost:5000/api/user-by-email/${email}`);
+                setUser(res.data);
+            } catch (err) {
+                console.error("Failed to fetch user by email", err);
+            }
+        };
+    
+        fetchUserByEmail();
+    }, []);
 
     return (
         <>
             <div className="home-container">
                 {/* Top Bar */}
                 <div className="top-bar">
-                    <h2>Dashboard</h2>
+                    <h2>Dashboard <span className='mentor-dashboard'>Mentor</span></h2>
                     <img src= {logo} className='logo-img' alt="CK_logo" />
 
                     <div className="user-icon-wrapper">
@@ -131,7 +149,7 @@ const MentorHome = () => {
                     {/* Main Area */}
                     <div className="main-area">
                         <h1>
-                            Hi,&nbsp;<span className="user-name">{user.name}</span>
+                           <span className='Hi-mentor'>Hi, </span>&nbsp;<span className="user-name">{user?.name || "username not found"}</span>
                         </h1>
                         <div className='grid-btn'>
                             <button onClick={() => navigate('/mentor/task')} className="action-btn">
