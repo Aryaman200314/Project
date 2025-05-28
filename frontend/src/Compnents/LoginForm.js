@@ -86,8 +86,8 @@ const LoginForm = () => {
       {errors.role && <p className="error">{errors.role}</p>}
 
       <p>Don't have an account?</p>
-      <button type="button" onClick={() => navigate("/signup")}>
-        Go to Signup
+      <button type="button">
+        Contact Admin
       </button>
       
     </div>

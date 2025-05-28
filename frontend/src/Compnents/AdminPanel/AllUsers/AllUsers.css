@@ -1,0 +1,133 @@
+.all-users-container {
+    max-width: 95%;
+    margin: 30px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .all-users-container h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .filter-bar select,
+  .filter-bar input {
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    width: auto;
+    min-width: 160px;
+  }
+  
+  .filter-bar input[type="text"] {
+    width: 220px;
+  }
+  
+  .clear-btn {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  
+  .clear-btn {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s ease;
+  }
+  
+  .clear-btn:hover {
+    background-color: #e63e3e;
+  }
+  
+  .users-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  
+  .users-table th,
+  .users-table td {
+    padding: 12px 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+  }
+  
+  .users-table th {
+    background-color: #f5f5f5;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .users-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .users-table td input,
+  .users-table td select {
+    width: 90%;
+    padding: 6px;
+    font-size: 13px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  
+  .users-table button {
+    margin: 2px 4px;
+    padding: 6px 10px;
+    font-size: 13px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .users-table button:first-child {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  .users-table button:last-child {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  .users-table button:first-child:hover {
+    background-color: #0056b3;
+  }
+  
+  .users-table button:last-child:hover {
+    background-color: #b02a37;
+  }
+  
+  td[style*="color: blue"] {
+    font-weight: bold;
+  }
+  
+  td[style*="color: green"] {
+    font-weight: bold;
+  }
+  

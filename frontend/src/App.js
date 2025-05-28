@@ -15,13 +15,22 @@ import MentorHome from './Compnents/MentorPortal/MentorHome'
 import Task from './Compnents/MentorPortal/Task/Task'
 import MentorAssignment from './Compnents/MentorPortal/MentorAssignment/MentorAssignment'
 import ContactMentee from './Compnents/MentorPortal/ContactMentee/ContactMentee'
-import AdminLogin from './Compnents/Admin panel/Login/AdminLogin'
-import AssignPage from './Compnents/Admin panel/AdminHome/AssignPage'
+import AdminLogin from './Compnents/AdminPanel/Login/AdminLogin'
+import AssignPage from './Compnents/AdminPanel/AdminHome/AssignPage'
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import AddMentor from './Compnents/AdminPanel/AddMentor/AddMentor'
+import AddMentee from './Compnents/AdminPanel/AddMentee/AddMentee'
+import AllUsers from './Compnents/AdminPanel/AllUsers/AllUsers'
+
 function App() {
   return (
     <div>
       <BrowserRouter>
+      <ToastContainer />
+
         <Routes>
+        <Route path="*" element={<h2 style={{ textAlign: 'center', marginTop: '50px' }}>404 - Page Not Found</h2>} />
           <Route path='/' element={<Navigate to="/login"/>}/>
 
 
@@ -52,7 +61,12 @@ function App() {
           <Route path='/admin/dashboard' element={<AssignPage/>}/>
 
 
+          { /*  admin pannel add users that is mentor and mentee  */ }
+          <Route path='/admin/add/mentor' element={<AddMentor/>} />
+          <Route path='/admin/add/mentee' element={<AddMentee/>}/>
 
+          { /* List all users */ }
+          <Route path='/admin/all/users' element={<AllUsers/>}/>
         </Routes>
 
 

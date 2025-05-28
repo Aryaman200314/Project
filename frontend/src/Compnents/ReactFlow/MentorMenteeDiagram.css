@@ -1,0 +1,5 @@
+.custom-edge path:hover {
+  stroke: #e91e63 !important;
+  stroke-width: 3;
+  cursor: pointer;
+}
