@@ -127,7 +127,7 @@ const MentorHome = () => {
                         <button onClick={() => navigate('/mentor/task')} className="action-btn">Task</button>
                         <button onClick={() => navigate('/mentor/assignment')} className="action-btn">Assignment</button>
                         <button onClick={() => navigate('/timeline')} className="action-btn">Check Timeline</button>
-                        <button onClick={() => navigate('/mentor/approve')} className="action-btn">View Records</button>
+                        <button onClick={() => navigate('/kanban')} className="action-btn">KanBan</button>
                         <button onClick={() => navigate('/contact-mentee')} className="action-btn">Contact Mentee</button>
                         <button onClick={() => navigate('/analysis')} className="action-btn">Analysis</button>
                     </div>

@@ -50,7 +50,7 @@ function App() {
 
 
           {/* mentors */}
-          <Route path="/mentor/approve" element={<MentorPortal />} />
+          <Route path="/kanban" element={<MentorPortal />} />
       
 
           <Route path="/mentor/home" element={<MentorHome />} />

@@ -1,4 +1,3 @@
-// ✅ server.js
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -1022,19 +1021,45 @@ app.get('/api/mentors/all', async (req, res) => {
   }
 });
 
-// kanban
+// KANBAN
+app.post('/api/tasks/by-email', (req, res) => {
+  const { title, description, end_time, mentor_email, mentee_email } = req.body;
+  if (!title || !mentor_email || !mentee_email || !end_time) {
+    return res.status(400).json({ message: 'Title, mentor_email, mentee_email, and end_time are required' });
+  }
 
-app.post('/api/tasks', (req, res) => {
-  const { title, description, end_time, mentor_id, mentee_id } = req.body;
-  const query = `
-    INSERT INTO tasks (title, description, end_time, mentor_id, mentee_id)
-    VALUES (?, ?, ?, ?, ?)
-  `;
-  connection.query(query, [title, description, end_time, mentor_id, mentee_id], (err, result) => {
-    if (err) return res.status(500).json({ message: 'Error creating task' });
-    res.status(201).json({ message: 'Task created', id: result.insertId });
+  const mentorQuery = 'SELECT id FROM mentors WHERE email = ?';
+  const menteeQuery = 'SELECT id FROM mentees WHERE email = ?';
+
+  connection.query(mentorQuery, [mentor_email], (err, mentorResults) => {
+    if (err || mentorResults.length === 0) {
+      return res.status(404).json({ message: 'Mentor not found' });
+    }
+    const mentor_id = mentorResults[0].id;
+
+    connection.query(menteeQuery, [mentee_email], (err2, menteeResults) => {
+      if (err2 || menteeResults.length === 0) {
+        return res.status(404).json({ message: 'Mentee not found' });
+      }
+      const mentee_id = menteeResults[0].id;
+
+      const insertQuery = `
+        INSERT INTO tasks (title, description, end_time, mentor_id, mentee_id, status)
+        VALUES (?, ?, ?, ?, ?, 'backlog')
+      `;
+
+      connection.query(insertQuery, [title, description, end_time, mentor_id, mentee_id], (err3, result) => {
+        if (err3) {
+          console.error("Error inserting task:", err3);
+          return res.status(500).json({ message: 'Error creating task', error: err3 });
+        }
+        res.status(201).json({ message: 'Task created', id: result.insertId });
+      });
+    });
   });
 });
+
+
 
 // For a mentee
 app.get('/api/tasks/mentee/:mentee_id', (req, res) => {
@@ -1058,7 +1083,43 @@ app.get('/api/tasks/mentor/:mentor_id', (req, res) => {
 
 
 
-
+app.put('/api/tasks/:id', (req, res) => {
+  const { id } = req.params;
+  const { title, description, end_time } = req.body;
+  const query = 'UPDATE tasks SET title=?, description=?, end_time=? WHERE id=?';
+  connection.query(query, [title, description, end_time, id], (err) => {
+    if (err) return res.status(500).json({ message: 'Error updating task' });
+    res.status(200).json({ message: 'Task updated' });
+  });
+});
+app.put('/api/tasks/:id/status', (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  const query = 'UPDATE tasks SET status=? WHERE id=?';
+  connection.query(query, [status, id], (err) => {
+    if (err) return res.status(500).json({ message: 'Error updating status' });
+    res.status(200).json({ message: 'Status updated' });
+  });
+});
+app.delete('/api/tasks/:id', (req, res) => {
+  const { id } = req.params;
+  const query = 'DELETE FROM tasks WHERE id=?';
+  connection.query(query, [id], (err) => {
+    if (err) return res.status(500).json({ message: 'Error deleting task' });
+    res.status(200).json({ message: 'Task deleted' });
+  });
+});
+app.post('/api/assignments', (req, res) => {
+  const { title, description, end_time, mentor_id, mentee_id } = req.body;
+  const query = `
+    INSERT INTO assignments (title, description, end_time, mentor_id, mentee_id)
+    VALUES (?, ?, ?, ?, ?)
+  `;
+  connection.query(query, [title, description, end_time, mentor_id, mentee_id], (err, result) => {
+    if (err) return res.status(500).json({ message: 'Error creating assignment' });
+    res.status(201).json({ message: 'Assignment created', id: result.insertId });
+  });
+});
 
 
 
