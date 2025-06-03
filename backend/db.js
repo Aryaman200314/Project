@@ -7,9 +7,9 @@ const connection = mysql.createConnection({
   database: 'backend'
 });
 
-connection.connect((err) => {
-  if (err) throw err;
-  console.log('Connected to MySQL database');
-});
+// connection.connect((err) => {
+//   if (err) throw err;
+//   console.log('Connected to MySQL database');
+// });
 
 module.exports = connection;

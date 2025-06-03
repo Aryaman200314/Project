@@ -22,6 +22,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import AddMentor from './Compnents/AdminPanel/AddMentor/AddMentor'
 import AddMentee from './Compnents/AdminPanel/AddMentee/AddMentee'
 import AllUsers from './Compnents/AdminPanel/AllUsers/AllUsers'
+import AdminAccountRequests from './Compnents/AdminPanel/AdminAccountRequest/AdminAccountRequests'
+import ChatApp from './Compnents/ChatBox/ChatBox'
 
 function App() {
   return (
@@ -67,9 +69,20 @@ function App() {
 
           { /* List all users */ }
           <Route path='/admin/all/users' element={<AllUsers/>}/>
+
+
+          { /* Password requests */}
+          <Route path='/admin/user/add/requests' element={<AdminAccountRequests/>}/>
+
+
+          {/* Chat page  */}
+        <Route path="/chat" element={<ChatApp userEmail={localStorage.getItem("userEmail")} />} />
+
         </Routes>
 
 
+
+        
        
       </BrowserRouter>
     </div>

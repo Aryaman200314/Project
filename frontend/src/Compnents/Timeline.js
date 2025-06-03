@@ -2,41 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Timeline.css';
-
-const sampleData = [
-  {
-    id: 1,
-    title: 'AWS EC2 Setup',
-    timestamp: '2025-05-12T10:00:00Z',
-    type: 'assignment',
-    description: 'Set up a virtual server using AWS EC2.',
-    file: 'aws-ec2-setup.pdf'
-  },
-  {
-    id: 2,
-    title: 'S3 Bucket Configuration',
-    timestamp: '2025-05-13T14:00:00Z',
-    type: 'task',
-    description: 'Configure static website hosting in AWS S3.',
-    file: 's3-website-task.pdf'
-  },
-  {
-    id: 3,
-    title: 'IAM Role Creation',
-    timestamp: '2025-05-14T09:30:00Z',
-    type: 'assignment',
-    description: 'Create a secure IAM role with limited privileges.',
-    file: 'iam-role.pdf'
-  },
-  {
-    id: 4,
-    title: 'Lambda Function Deployment',
-    timestamp: '2025-05-15T11:45:00Z',
-    type: 'task',
-    description: 'Deploy a Node.js Lambda function using the AWS CLI.',
-    file: 'lambda-deploy.pdf'
-  }
-];
+import axios from 'axios';
 
 const Timeline = () => {
   const [entries, setEntries] = useState([]);
@@ -45,11 +11,13 @@ const Timeline = () => {
   const [filterType, setFilterType] = useState('all');
   const [sortOrder, setSortOrder] = useState('desc');
   const navigate = useNavigate();
+  const userEmail = localStorage.getItem("userEmail");
 
   useEffect(() => {
-    setEntries(sampleData);
-    setFiltered(sampleData);
-  }, []);
+    axios.get(`http://localhost:5000/api/timeline/${userEmail}`)
+      .then(res => setEntries(res.data))
+      .catch(err => console.error("Failed to fetch timeline:", err));
+  }, [userEmail]);
 
   useEffect(() => {
     let data = [...entries];
@@ -66,8 +34,8 @@ const Timeline = () => {
 
     data.sort((a, b) => {
       return sortOrder === 'asc'
-        ? new Date(a.timestamp) - new Date(b.timestamp)
-        : new Date(b.timestamp) - new Date(a.timestamp);
+        ? new Date(a.uploaded_at) - new Date(b.uploaded_at)
+        : new Date(b.uploaded_at) - new Date(a.uploaded_at);
     });
 
     setFiltered(data);
@@ -98,16 +66,17 @@ const Timeline = () => {
       </div>
 
       <div className="timeline-list">
-        {filtered.map((entry) => (
+        {filtered.map((entry, index) => (
           <div
-            key={entry.id}
+            key={entry.id || index}
             className={`timeline-item ${entry.type}`}
-            onClick={() => navigate(`/details/${entry.id}`)}
+            onClick={() => navigate(`/details/${entry.id || ''}`)}
+
           >
             <div className="timeline-content">
               <h3>{entry.title}</h3>
               <p>Type: {entry.type}</p>
-              <p>Uploaded At: {new Date(entry.timestamp).toLocaleString()}</p>
+              <p>Uploaded At: {new Date(entry.uploaded_at).toLocaleString()}</p>
             </div>
           </div>
         ))}

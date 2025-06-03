@@ -3,6 +3,7 @@ import axios from 'axios';
 import './AssignPage.css';
 import MentorMenteeDiagram from '../../ReactFlow/MentorMenteeDiagram';
 import { useNavigate } from 'react-router-dom';
+import AdminSidebar from '../AdminSidepanel/AdminSidebar';
 
 const AssignPage = () => {
   const [mentors, setMentors] = useState([]);
@@ -57,6 +58,7 @@ const AssignPage = () => {
 
   return (
     <>
+    <AdminSidebar/>
       <div className="assign-container">
         <h2 className="title">Assign Mentees to Mentor</h2>
         <hr />

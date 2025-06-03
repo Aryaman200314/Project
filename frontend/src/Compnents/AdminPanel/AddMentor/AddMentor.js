@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import './AddMentor.css';
+import AdminLogin from '../Login/AdminLogin';
 
 const AddMentor = () => {
   const [formData, setFormData] = useState({
@@ -41,6 +42,7 @@ const AddMentor = () => {
   };
 
   return (
+    <>
     <div className="add-mentor-container">
       <h2>Add Mentor</h2>
       <form onSubmit={handleSubmit} className="add-mentor-form">
@@ -69,6 +71,7 @@ const AddMentor = () => {
         <button type="submit">Add Mentor</button>
       </form>
     </div>
+    </>
   );
 };
 

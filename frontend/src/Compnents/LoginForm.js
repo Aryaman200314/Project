@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./Login.css";
+import AdminRequestModal from "./AdminRequestModal";
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ const LoginForm = () => {
 
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState("");
+  const [showModal, setShowModal] = useState(false);
   const validateForm = () => {
     const newErrors = {};
     if (!formData.email) newErrors.email = "Email is required";
@@ -84,11 +86,16 @@ const LoginForm = () => {
         <option value="mentor">Mentor</option>
       </select>
       {errors.role && <p className="error">{errors.role}</p>}
+      <hr/>
+      <p>Don't have an account?/Want to reset password</p>
 
-      <p>Don't have an account?</p>
-      <button type="button">
+      <button type="button" onClick={() => setShowModal(true)}>
         Contact Admin
       </button>
+      {
+          showModal && (
+            <AdminRequestModal onClose={()=> setShowModal(false)}/>
+          )}
       
     </div>
     <button onClick={()=> navigate("/admin/login")}>Admin panel</button>

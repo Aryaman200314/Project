@@ -1,0 +1,73 @@
+.account-requests-container {
+    padding: 30px;
+    font-family: 'Segoe UI', sans-serif;
+    color: #2c2c2c;
+  }
+  
+  .account-requests-container h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  thead {
+    background-color: #f8f9fa;
+  }
+  
+  thead th {
+    text-align: left;
+    padding: 14px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #444;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #dee2e6;
+  }
+  
+  tbody td {
+    padding: 14px 20px;
+    font-size: 14px;
+    border-bottom: 1px solid #f1f1f1;
+  }
+  
+  tbody tr:hover {
+    background-color: #f9f9f9;
+  }
+  
+  button {
+    padding: 8px 16px;
+    border: none;
+    font-size: 13px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-right: 8px;
+    transition: background 0.2s ease;
+  }
+  
+  button:first-of-type {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  button:first-of-type:hover {
+    background-color: #0056b3;
+  }
+  
+  button:last-of-type {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  button:last-of-type:hover {
+    background-color: #b02a37;
+  }
+  

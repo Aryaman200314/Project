@@ -16,29 +16,6 @@ import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
 const taskCompletionRate = getTaskCompletionRate();
 const assignmentCompletionRate = getAssignmentCompletionRate();
 
-const mentors = [
-    {
-        id: 1,
-        name: 'John Doe',
-        designation: 'Senior Developer',
-        email: 'john.doe@example.com',
-        phone: '1234567890',
-        location: 'Noida',
-        workMode: 'WFO',
-        mentees: ['Aryaman Sharma'],
-    },
-    {
-        id: 2,
-        name: 'Jane Smith',
-        designation: 'Cloud Architect',
-        email: 'jane.smith@example.com',
-        phone: '9876543210',
-        location: 'Noida',
-        workMode: 'WFH',
-        mentees: ['Rahul Gupta', 'Anita Mehra'],
-    }
-];
-
 const Home = () => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -47,23 +24,36 @@ const Home = () => {
     const [user, setUser] = useState(null);
     const [showPopup, setShowPopup] = useState(false);
     const [selectedMentor, setSelectedMentor] = useState(null);
+    const [mentors, setMentors] = useState([]);
+    const [allMentors, setAllMentors] = useState([]);
+
+
 
     useEffect(() => {
         const fetchUserByEmail = async () => {
             try {
                 const email = localStorage.getItem("userEmail");
                 if (!email) return;
-    
+
                 const res = await axios.get(`http://localhost:5000/api/user-by-email/${email}`);
                 setUser(res.data);
+
+                // Fetch mentors assigned to this mentee
+                const mentorRes = await axios.get(`http://localhost:5000/api/mentee/mentors?email=${email}`);
+                setMentors(mentorRes.data);
             } catch (err) {
-                console.error("Failed to fetch user by email", err);
+                console.error("Failed to fetch user or mentors", err);
             }
+
+            axios.get('http://localhost:5000/api/mentors/all')
+                .then(res => setAllMentors(res.data))
+                .catch(err => console.error("Failed to load mentors", err));
         };
-    
+
         fetchUserByEmail();
     }, []);
-    
+
+
 
     const handleLogout = () => {
         localStorage.removeItem("user");
@@ -105,7 +95,7 @@ const Home = () => {
                         <p><strong>Phone:</strong> {selectedMentor.phone}</p>
                         <p><strong>Location:</strong> {selectedMentor.location}</p>
                         <p><strong>Work Mode:</strong> {selectedMentor.workMode}</p>
-                        <p><strong>Mentees:</strong> {selectedMentor.mentees.join(', ')}</p>
+                        <p><strong>Mentees:</strong> {selectedMentor.mentees?.join(', ') || "N/A"}</p>
                         <button className="close-button" onClick={() => setSelectedMentor(null)}>Close</button>
                     </div>
                 </div>
@@ -114,24 +104,40 @@ const Home = () => {
             {/* Main Content */}
             <div className="home-content">
                 {/* Sidebar - Mentor List */}
-                <div className="sidebar">
-                    <h3>Mentors</h3>
+                <div className="home-page-sidebar">
+                    <h3>Mentor</h3>
                     {mentors.map((mentor) => (
+                        <>
                         <div key={mentor.id} className="mentor-item" onClick={() => setSelectedMentor(mentor)}>
                             <div className="mentor-hover">
                                 <div className="mentor-info">
                                     <p><strong>{mentor.name}</strong></p>
-                                    <p>{mentor.email}</p>
-                                    <hr />
+                                    {/* <p>{mentor.email}</p> */}
+                                    {/* <hr /> */}
+                                </div>
+                            </div>
+                        </div>
+                        <button id='chat-buton' onClick={()=>navigate('/chat')}>Message Mentor</button>
+                        </>
+                    ))}
+                    <hr />
+                    <h3>All Mentors</h3>
+                    {allMentors.map((mentor, idx) => (
+                        <div key={idx} className="mentor-item" onClick={() => setSelectedMentor(mentor)}>
+                            <div className="mentor-hover">
+                                <div className="mentor-info">
+                                    <p><strong>{mentor.name}</strong></p>
                                 </div>
                             </div>
                         </div>
                     ))}
+
                 </div>
+
 
                 {/* Main Area */}
                 <div className="main-area">
-                <h1> <span className='hi-username'>Hi, </span><span className='mentee-name'>{user?.name || "Username not found"}</span></h1>
+                    <h1> <span className='hi-username'>Hi, </span><span className='mentee-name'>{user?.name || "Username not found"}</span></h1>
                     <div className='grid-btn'>
                         <button onClick={() => navigate('/upload-task')} className="action-btn">Upload Task</button>
                         <button onClick={() => navigate('/assignment-upload')} className="action-btn">Upload Assignment</button>

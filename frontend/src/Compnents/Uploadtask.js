@@ -1,16 +1,32 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './UploadTask.css';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const UploadTask = () => {
+  const userEmail = localStorage.getItem('userEmail');
   const [mentor, setMentor] = useState('');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [keywords, setKeywords] = useState('');
   const [file, setFile] = useState(null);
+  const [mentorOptions, setMentorOptions] = useState([]);
+  const [timelineData, setTimelineData] = useState([]);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/mentors/list')
+      .then(res => setMentorOptions(res.data))
+      .catch(err => console.error('Failed to fetch mentors', err));
+  }, []);
+
+  useEffect(() => {
+    axios.get(`http://localhost:5000/api/tasks/latest/${userEmail}`)
+      .then(res => setTimelineData(res.data))
+      .catch(err => console.error("Failed to fetch timeline:", err));
+  }, []);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!file || file.type !== 'application/pdf') {
@@ -18,42 +34,23 @@ const UploadTask = () => {
       return;
     }
 
-    const now = new Date();
-    const time = now.toISOString();
+    const formData = new FormData();
+    formData.append('mentor', mentor);
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('keywords', keywords);
+    formData.append('email', userEmail);
+    formData.append('file', file);
 
-    const logData = {
-      mentor,
-      title,
-      description,
-      keywords,
-      fileName: file.name,
-      time,
-    };
-
-    const jsonBlob = new Blob([JSON.stringify(logData, null, 2)], { type: 'application/json' });
-    const logUrl = URL.createObjectURL(jsonBlob);
-
-    const a = document.createElement('a');
-    a.href = logUrl;
-    a.download = `task-log-${Date.now()}.json`;
-    a.click();
-
-    const fileUrl = URL.createObjectURL(file);
-    const fileAnchor = document.createElement('a');
-    fileAnchor.href = fileUrl;
-    fileAnchor.download = file.name;
-    fileAnchor.click();
-
-    alert('Task uploaded successfully (simulated for frontend demo)');
+    try {
+      const res = await axios.post('http://localhost:5000/api/upload/task', formData);
+      alert(res.data.message || 'Task uploaded successfully');
+      window.location.reload();
+    } catch (err) {
+      console.error('Upload failed:', err);
+      alert('Upload failed. Try again.');
+    }
   };
-
-  const timelineData = [
-    { time: '2025-05-14 10:00 AM', task: 'Weekly Summary' },
-    { time: '2025-05-13 04:30 PM', task: 'Bug Fixes Report' },
-    { time: '2025-05-12 09:15 AM', task: 'Design Update' },
-    { time: '2025-05-10 02:45 PM', task: 'Sprint Goals' },
-    { time: '2025-05-09 11:00 AM', task: 'Feature Demo' },
-  ];
 
   return (
     <>
@@ -61,43 +58,46 @@ const UploadTask = () => {
         <h2>Tasks</h2>
       </div>
 
-      <div className="upload-task-page" style={{ display: 'flex', height: '100vh' }}>
+      <div className="upload-task-page">
         {/* Timeline Column */}
-        <div style={{ width: '30%', padding: '20px', backgroundColor: '#f5f5f5', borderRight: '1px solid #ccc', overflowY: 'auto' }}>
-          <h3 style={{ marginBottom: '20px' }}>Timeline</h3>
-          <ul style={{ borderLeft: '2px solid #007bff', paddingLeft: '15px' }}>
-            {timelineData.map((item, index) => (
-              <li key={index} style={{ marginBottom: '20px', position: 'relative' }}>
-                <div
-                  style={{
-                    width: '12px',
-                    height: '12px',
-                    backgroundColor: '#007bff',
-                    borderRadius: '50%',
-                    position: 'absolute',
-                    left: '-20px',
-                    top: '5px',
-                  }}
-                ></div>
-                <div style={{ fontSize: '0.9rem', color: '#555' }}>{item.time}</div>
-                <div style={{ fontWeight: 'bold' }}>{item.task}</div>
-              </li>
-            ))}
-          </ul>
-          <button onClick={() => navigate('/home')}>Back</button>
+        <div className="timeline-container">
+          <h3 className="timeline-title">Timeline <span className="five-days">Latest-5</span></h3>
+          {timelineData.length > 0 ? (
+            timelineData.map((item, index) => (
+              <div key={index} className="timeline-entry">
+                <div className="date">{new Date(item.uploaded_at).toLocaleString()}</div>
+                <div className="title">{item.title}</div>
+              </div>
+            ))
+          ) : (
+            <p className="no-tasks">No tasks uploaded yet.</p>
+          )}
+
+          <div className="timeline-actions">
+            <button className="btn-primary" onClick={() => navigate('/home')}>Back</button>
+            <button className="btn-primary" onClick={() => navigate('/timeline')}>View all submissions</button>
+          </div>
         </div>
 
         {/* Upload Form Column */}
-        <div className="upload-container" style={{ flex: 1, padding: '30px' }}>
+        <div className="upload-form-container">
           <h2>Upload Task</h2>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="upload-task-form">
             <input
-              type="text"
-              placeholder="Mentor Name"
+              list="mentor-suggestions"
+              placeholder="Start typing mentor name or email"
               value={mentor}
               onChange={(e) => setMentor(e.target.value)}
               required
             />
+            <datalist id="mentor-suggestions">
+              {mentorOptions.map(m => (
+                <option key={m.id} value={m.email}>
+                  {m.name} ({m.email})
+                </option>
+              ))}
+            </datalist>
+
             <input
               type="text"
               placeholder="Task Title"
@@ -124,12 +124,10 @@ const UploadTask = () => {
               onChange={(e) => setFile(e.target.files[0])}
               required
             />
-            <button type="submit">Upload</button>
+            <button type="submit" className="btn-submit">Upload</button>
           </form>
         </div>
       </div>
-
-      
     </>
   );
 };
