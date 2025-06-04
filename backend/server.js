@@ -1294,6 +1294,44 @@ app.get('/api/assignments/per-mentee', (req, res) => {
 
 
 
+// mentee page pending tasks and assignment display
+// For tasks
+app.get('/api/tasks/by-mentee', (req, res) => {
+  const menteeEmail = req.query.email;
+  const query = `
+    SELECT tasks.*, mentors.first_name AS mentor_first, mentors.last_name AS mentor_last
+    FROM tasks
+    JOIN mentees ON tasks.mentee_id = mentees.id
+    JOIN mentors ON tasks.mentor_id = mentors.id
+    WHERE mentees.email = ?
+    ORDER BY tasks.end_time DESC
+  `;
+  connection.query(query, [menteeEmail], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+});
+
+// For assignments
+app.get('/api/assignments/by-mentee', (req, res) => {
+  const menteeEmail = req.query.email;
+  const query = `
+    SELECT assignments.*, mentors.first_name AS mentor_first, mentors.last_name AS mentor_last
+    FROM assignments
+    JOIN mentees ON assignments.mentee_id = mentees.id
+    JOIN mentors ON assignments.mentor_id = mentors.id
+    WHERE mentees.email = ?
+    ORDER BY assignments.end_time DESC
+  `;
+  connection.query(query, [menteeEmail], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+});
+
+
+
+
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

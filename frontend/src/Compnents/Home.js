@@ -139,8 +139,8 @@ const Home = () => {
                 <div className="main-area">
                     <h1> <span className='hi-username'>Hi, </span><span className='mentee-name'>{user?.name || "Username not found"}</span></h1>
                     <div className='grid-btn'>
-                        <button onClick={() => navigate('/upload-task')} className="action-btn">Upload Task</button>
-                        <button onClick={() => navigate('/assignment-upload')} className="action-btn">Upload Assignment</button>
+                        <button onClick={() => navigate('/upload-task')} className="action-btn">Task</button>
+                        <button onClick={() => navigate('/assignment-upload')} className="action-btn">Assignment</button>
                         <button onClick={() => navigate('/timeline')} className="action-btn">Check Timeline</button>
                         <button onClick={() => navigate('/view-records')} className="action-btn">View Records</button>
                         <button onClick={() => navigate('/contact-mentor')} className="action-btn">Contact Mentor</button>

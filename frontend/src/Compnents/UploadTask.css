@@ -1,156 +1,193 @@
-.top-bar {
-  background-color: #007bff;
-  color: white;
-  padding: 1rem 2rem;
-  font-size: 1.5rem;
-  font-weight: bold;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+body {
+  background: #f9fbfd;
 }
-
-.upload-task-page {
+.taskpage-root {
   display: flex;
-  height: 100vh;
+  height: 90vh;
+  background: #f9fbfd;
 }
-
-/* Timeline Left Column */
-.timeline-container {
-  width: 30%;
-  padding: 30px;
-  background-color: #f8f9fa;
-  border-right: 1px solid #ddd;
-  overflow-y: auto;
-}
-
-.timeline-title {
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-bottom: 20px;
-  color: #007bff;
-}
-
-.timeline-entry {
-  position: relative;
-  margin-bottom: 25px;
-  padding-left: 25px;
-}
-
-.timeline-entry::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 6px;
-  width: 10px;
-  height: 10px;
-  background-color: #007bff;
-  border-radius: 50%;
-}
-
-.timeline-entry .date {
-  font-size: 0.85rem;
-  color: #555;
-}
-
-.timeline-entry .title {
-  font-weight: 600;
-  color: #333;
-}
-
-.timeline-actions {
-  margin-top: 30px;
-  display: flex;
-  gap: 10px;
-}
-
-.no-tasks {
-  color: #888;
-  font-style: italic;
-  margin-top: 10px;
-}
-
-.five-days {
-  font-size: small;
-  color: grey;
-}
-
-/* Upload Form Right Column */
-.upload-form-container {
-  flex: 1;
-  padding: 40px;
-  background-color: #ffffff;
-}
-
-.upload-task-form {
+.taskpage-sidebar {
+  width: 280px;
+  background: #fff;
+  padding: 2rem 1rem 1rem 1.7rem;
+  border-right: 1.5px solid #eef1f6;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  max-width: 500px;
-  margin: auto;
+  gap: 1.2rem;
 }
 
-.upload-task-form input,
-.upload-task-form textarea {
-  padding: 10px;
-  font-size: 0.95rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+.taskpage-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
 }
-
-.upload-task-form textarea {
-  resize: vertical;
-  min-height: 80px;
-}
-
-.btn-primary,
-.btn-submit {
-  background-color: #007bff;
-  color: white;
-  padding: 10px 16px;
+.taskpage-filters button {
+  padding: 4px 14px;
   border: none;
-  border-radius: 6px;
-  font-size: 0.95rem;
+  border-radius: 999px;
+  background: #f4f7fb;
+  color: #246bfd;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  font-size: 0.98rem;
+  transition: background .15s;
+}
+.taskpage-filters button.active,
+.taskpage-filters button:hover {
+  background: #246bfd;
+  color: #fff;
+}
+.taskpage-search {
+  padding: 9px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  width: 94%;
+  font-size: 1rem;
+  margin-bottom: 8px;
 }
 
-.btn-primary:hover,
-.btn-submit:hover {
-  background-color: #0056b3;
+.taskpage-list {
+  flex: 1;
+  margin-top: 6px;
+  overflow-y: auto;
+  min-height: 150px;
+}
+.taskpage-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f5f7fa;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: box-shadow .14s, background .16s;
+  border-left: 3.5px solid transparent;
+}
+.taskpage-item.selected,
+.taskpage-item:hover {
+  background: #e9f1ff;
+  box-shadow: 0 2px 10px rgba(36,107,253,0.04);
+  border-left: 3.5px solid #246bfd;
+}
+.task-title { font-weight: 600; }
+.task-status {
+  font-size: 0.85rem;
+  background: #f0f0fa;
+  color: #888;
+  border-radius: 8px;
+  padding: 2px 10px;
+}
+.status-backlog { color: #246bfd; }
+.status-done { color: #08ba00; }
+.status-pending { color: #db8c00; }
+.status-review { color: #b02bff; }
+.status-inprogress { color: #f04545; }
+.taskpage-empty { color: #aaa; text-align: center; margin-top: 2rem; }
+
+.taskpage-arrow-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+}
+.taskpage-arrow {
+  width: 0; height: 0;
+  border-top: 24px solid transparent;
+  border-bottom: 24px solid transparent;
+  border-left: 38px solid #cbe1ff;
+  margin-left: 0;
+}
+.taskpage-details {
+  flex: 1;
+  min-width: 0;
+  min-height: 100vh;
+  background: #f8fbff;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 3.5rem 3rem 2.5rem 3rem;
+  /* Remove card feeling by removing any box-shadow etc here */
+}
+.details-card {
+  background: transparent;
+  width: 100%;
+  min-width: 0;
+  min-height: 80vh;
+  /* transition: box-shadow .14s, background .16s; */
+  box-shadow: 0 2px 11px rgba(36,107,253,0.04);
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  animation: fadeIn .6s;
+  border: 1px solid rgb(223, 223, 223);
+  border-radius: 20px;
+  padding-top: 30px;
+
+  padding-left: 30px;
+  /* Remove the card “floating box” look */
 }
 
-/* Responsive Layout */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px);}
+  to { opacity: 1; transform: none;}
+}
+.details-card h2 {
+  font-size: 2.1rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  color: #246bfd;
+  letter-spacing: 1px;
+}
+.details-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  font-size: 1.17rem;
+  margin-bottom: 14px;
+}
+.status-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  display: inline-block;
+  background: #bbb;
+  margin-right: 4px;
+}
+.status-backlog { background: #246bfd !important; }
+.status-done { background: #08ba00 !important; }
+.status-pending { background: #db8c00 !important; }
+.status-review { background: #b02bff !important; }
+.status-inprogress { background: #f04545 !important; }
+.details-desc {
+  margin-left: .5rem;
+  background: #f3f6fb;
+  padding: 1.1rem 1.4rem;
+  border-radius: 9px;
+  font-size: 1.1rem;
+  color: #333;
+  max-width: 700px;
+  min-width: 300px;
+  word-break: break-word;
+  line-height: 1.6;
+}
+.no-details {
+  font-size: 1.25rem;
+  color: #bbb;
+  margin-top: 120px;
+}
+
 @media (max-width: 900px) {
-  .upload-task-page {
-    flex-direction: column;
-    height: auto;
+  .taskpage-details {
+    padding: 1.4rem 1rem;
   }
-
-  .timeline-container,
-  .upload-form-container {
-    width: 100%;
-    padding: 20px;
-    border-right: none;
-    border-bottom: 1px solid #ddd;
+  .details-desc {
+    min-width: 100px;
+    max-width: 100%;
+    padding: 0.6rem 0.7rem;
   }
-
-  .timeline-actions {
-    justify-content: center;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .upload-task-form {
-    padding: 0 10px;
-  }
-
-  .btn-primary,
-  .btn-submit {
-    width: 100%;
-    max-width: 300px;
-    margin-top: 10px;
-  }
-
-  .top-bar {
-    font-size: 1.2rem;
-    text-align: center;
-  }
+}
+.extra{
+  font-size: small;
+  color: grey;
 }
