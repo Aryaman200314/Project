@@ -1378,19 +1378,21 @@ app.post('/api/task-activity', (req, res) => {
 
 //get activity logs 
 // GET /api/task-activity/:taskId
-app.get('/api/task-activity/:taskId', async (req, res) => {
+// GET all activity logs for a task
+app.get('/api/task-activity/:taskId', (req, res) => {
   const { taskId } = req.params;
-  try {
-    const [rows] = await connection.query(
-      `SELECT * FROM task_activity_log WHERE task_id = ? ORDER BY action_time ASC`,
-      [taskId]
-    );
-    res.json(rows);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch activity logs', details: err.message });
-  }
+  connection.query(
+    'SELECT * FROM task_activity_log WHERE task_id = ? ORDER BY action_time DESC',
+    [taskId],
+    (err, rows) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: 'Failed to fetch timeline' });
+      }
+      res.json(rows);
+    }
+  );
 });
-
 
 
 

@@ -284,3 +284,41 @@ body {
   max-height: 200px;
   min-height: 20px;
 }
+.sidebar-timeline {
+  margin-top: 1.2rem;
+  background: #f6f8fa;
+  border-radius: 8px;
+  padding: 10px 12px;
+  animation: fadeIn .6s;
+}
+.mini-timeline-title {
+  font-size: 1rem;
+  color: #246bfd;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px);}
+  to { opacity: 1; transform: none;}
+}
+.mini-timeline-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.mini-timeline-entry {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.98rem;
+  margin-bottom: 4px;
+  color: #495057;
+}
+.mini-timeline-action {
+  font-weight: 500;
+  text-transform: capitalize;
+}
+.mini-timeline-time {
+  color: #999;
+  font-size: 0.92rem;
+  margin-left: 8px;
+}

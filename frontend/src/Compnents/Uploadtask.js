@@ -13,6 +13,7 @@ const UploadTask = () => {
   const [selected, setSelected] = useState(null);
   const [showCheckin, setShowCheckin] = useState(false);
   const [checkinText, setCheckinText] = useState('');
+  const [timeline, setTimeline] = useState([]);
 
 
   useEffect(() => {
@@ -36,6 +37,17 @@ const UploadTask = () => {
     setFiltered(res);
 
   }, [tasks, status, search]);
+
+  useEffect(() => {
+    if (selected) {
+      axios.get(`http://localhost:5000/api/task-activity/${selected.id}`)
+        .then(res => setTimeline(res.data))
+        .catch(() => setTimeline([]));
+    } else {
+      setTimeline([]);
+    }
+  }, [selected]);
+
   const updateTaskStatus = async (taskId, newStatus) => {
     try {
       await axios.post(`http://localhost:5000/api/tasks/update-status`, {
@@ -52,27 +64,33 @@ const UploadTask = () => {
     }
   };
   const handleSaveCheckin = async () => {
-    if (!selected) return;
+    if (!selected || !checkinText.trim()) {
+      alert('Test box is empty!')
+      return
+    };  // <-- block if empty!
     await axios.post('http://localhost:5000/api/task-activity', {
-      task_id: selected.id,            // <-- must exist!
-      mentee_email: userEmail,         // <-- must exist!
-      action_type: "checkin",          // or whatever the action is
+      task_id: selected.id,
+      mentee_email: userEmail,
+      action_type: "checkin",
       old_value: null,
-      new_value: checkinText,          // or whatever the new checkin is
-      description: "Daily check-in"    // (optional)
-    });    
+      new_value: checkinText,
+      description: "Daily check-in"
+    });
     setShowCheckin(false);
     setCheckinText('');
-    // Optionally, refresh check-in timeline/records
   };
   const handleAskReview = async () => {
-    if (!selected) return;
+    if (!selected || !checkinText.trim()) {
+      alert('Text box is empty!')
+      return
+    }; // Block if nothing to submit
+
     // 1. Update status to 'review'
     await axios.post('http://localhost:5000/api/tasks/update-status', {
       taskId: selected.id,
       status: 'review'
     });
-  
+
     // 2. Log the activity
     await axios.post('http://localhost:5000/api/task-activity', {
       task_id: selected.id,
@@ -82,7 +100,7 @@ const UploadTask = () => {
       new_value: "review",
       description: checkinText || "Asked mentor for review"
     });
-  
+
     // 3. Update local state for instant UI feedback
     setTasks(prev =>
       prev.map(t => t.id === selected.id ? { ...t, status: "review" } : t)
@@ -90,6 +108,7 @@ const UploadTask = () => {
     setShowCheckin(false);
     setCheckinText('');
   };
+
 
   return (
     <div className="taskpage-root">
@@ -134,6 +153,24 @@ const UploadTask = () => {
             <div className="taskpage-empty">No tasks found.</div>
           )}
         </div>
+        <div>
+          {selected && timeline.length > 0 && (
+            <div className="sidebar-timeline">
+              <h4 className="mini-timeline-title">Recent Activity</h4>
+              <ul className="mini-timeline-list">
+                {timeline.slice(0, 4).map(log => ( // show only last 4
+                  <li key={log.id} className="mini-timeline-entry">
+                    <span className="mini-timeline-action">{log.action_type}</span>
+                    <span className="mini-timeline-time">
+                      {new Date(log.action_time).toLocaleDateString()} {/* or .toLocaleString() */}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+        </div>
       </div>
       <div className="taskpage-arrow-area">
         {selected && <div className="taskpage-arrow"></div>}
@@ -174,26 +211,31 @@ const UploadTask = () => {
               </button>
             </div>
             {showCheckin && (
-  <div className="checkin-box">
-    <textarea
-      className='test-area'
-      rows={4}
-      placeholder="Describe your progress for today..."
-      value={checkinText}
-      onChange={e => setCheckinText(e.target.value)}
-      style={{ width: '100%', padding: 8, borderRadius: 6, marginTop: 10 }}
-    />
-    <div style={{ marginTop: 10, display: 'flex', gap: 8 }}>
-      <button className="btn-primary" onClick={handleSaveCheckin}>Save</button>
-      <button className="btn-review" onClick={handleAskReview}>Ask for Review</button>
-      <button onClick={() => setShowCheckin(false)} className="btn-cancel">Cancel</button>
-    </div>
-  </div>
-)}
+              <div className="checkin-box">
+                <textarea
+                  className='test-area'
+                  rows={4}
+                  placeholder="Describe your progress for today..."
+                  value={checkinText}
+                  onChange={e => setCheckinText(e.target.value)}
+                  style={{ width: '100%', padding: 8, borderRadius: 6, marginTop: 10 }}
+                />
+                <div style={{ marginTop: 10, display: 'flex', gap: 8 }}>
+                  <button className="btn-primary" onClick={handleSaveCheckin}>Save</button>
+                  <button className="btn-review" onClick={handleAskReview}>Ask for Review</button>
+                  <button onClick={() => setShowCheckin(false)} className="btn-cancel">Cancel</button>
+                </div>
+              </div>
+            )}
 
           </div>
         ) : (
-          <div className="no-details">Select a task to see details</div>
+          <>
+            <div className="no-details">Select a task to see details
+              <p>If you open a task it will move to NEW  state which means now the task has started</p>
+            </div>
+
+          </>
         )}
       </div>
     </div>
