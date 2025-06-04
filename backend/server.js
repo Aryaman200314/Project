@@ -9,6 +9,7 @@ const fs = require('fs');
 const http = require('http');
 const socketIo = require('socket.io');
 const mysql = require('mysql');
+// const mentorEmail = localStorage.getItem("userEmail");
 
 
 const app = express();
@@ -423,7 +424,7 @@ app.post('/api/admin/password-request/:id', (req, res) => {
       res.status(200).json({ message: 'Password updated and request approved' });
     }
   );
-})  
+})
 
 
 
@@ -515,7 +516,7 @@ app.get('/api/admin/account-requests', (req, res) => {
   WHERE is_verified = 0
   ORDER BY created_at DESC
 `;
-;
+  ;
 
   connection.query(query, (err, results) => {
     if (err) {
@@ -674,52 +675,52 @@ app.get('/api/mentee/mentors', (req, res) => {
 
   // Step 1: Get mentee ID
   connection.query('SELECT id FROM mentees WHERE email = ?', [email], (err, menteeResults) => {
+    if (err) {
+      console.error("Error getting mentee:", err);
+      return res.status(500).json({ error: "Server error" });
+    }
+
+    if (menteeResults.length === 0)
+      return res.status(404).json({ error: "Mentee not found" });
+
+    const menteeId = menteeResults[0].id;
+
+    // Step 2: Get mentor IDs assigned to this mentee
+    connection.query('SELECT mentor_id FROM mentor_mentee WHERE mentee_id = ?', [menteeId], (err, linkResults) => {
       if (err) {
-          console.error("Error getting mentee:", err);
-          return res.status(500).json({ error: "Server error" });
+        console.error("Error getting mentor links:", err);
+        return res.status(500).json({ error: "Server error" });
       }
 
-      if (menteeResults.length === 0)
-          return res.status(404).json({ error: "Mentee not found" });
+      if (linkResults.length === 0) return res.json([]); // No mentors
 
-      const menteeId = menteeResults[0].id;
+      const mentorIds = linkResults.map(row => row.mentor_id);
+      const placeholders = mentorIds.map(() => '?').join(',');
 
-      // Step 2: Get mentor IDs assigned to this mentee
-      connection.query('SELECT mentor_id FROM mentor_mentee WHERE mentee_id = ?', [menteeId], (err, linkResults) => {
+      // Step 3: Get full mentor details
+      connection.query(
+        `SELECT id, first_name, last_name, email, phone, location, designation, work_mode FROM mentors WHERE id IN (${placeholders})`,
+        mentorIds,
+        (err, mentorResults) => {
           if (err) {
-              console.error("Error getting mentor links:", err);
-              return res.status(500).json({ error: "Server error" });
+            console.error("Error getting mentors:", err);
+            return res.status(500).json({ error: "Server error" });
           }
 
-          if (linkResults.length === 0) return res.json([]); // No mentors
+          const formatted = mentorResults.map(m => ({
+            id: m.id,
+            name: `${m.first_name} ${m.last_name}`,
+            email: m.email,
+            phone: m.phone,
+            location: m.location,
+            designation: m.designation,
+            workMode: m.work_mode
+          }));
 
-          const mentorIds = linkResults.map(row => row.mentor_id);
-          const placeholders = mentorIds.map(() => '?').join(',');
-
-          // Step 3: Get full mentor details
-          connection.query(
-              `SELECT id, first_name, last_name, email, phone, location, designation, work_mode FROM mentors WHERE id IN (${placeholders})`,
-              mentorIds,
-              (err, mentorResults) => {
-                  if (err) {
-                      console.error("Error getting mentors:", err);
-                      return res.status(500).json({ error: "Server error" });
-                  }
-
-                  const formatted = mentorResults.map(m => ({
-                      id: m.id,
-                      name: `${m.first_name} ${m.last_name}`,
-                      email: m.email,
-                      phone: m.phone,
-                      location: m.location,
-                      designation: m.designation,
-                      workMode: m.work_mode
-                  }));
-
-                  res.json(formatted);
-              }
-          );
-      });
+          res.json(formatted);
+        }
+      );
+    });
   });
 });
 
@@ -1060,64 +1061,93 @@ app.post('/api/tasks/by-email', (req, res) => {
 });
 
 
+app.post('/api/assignments/by-email', (req, res) => {
+  const { title, description, end_time, mentor_email, mentee_email } = req.body;
+  if (!title || !mentor_email || !mentee_email || !end_time) {
+    return res.status(400).json({ message: 'Title, mentor_email, mentee_email, and end_time are required' });
+  }
 
-// For a mentee
-app.get('/api/tasks/mentee/:mentee_id', (req, res) => {
-  const { mentee_id } = req.params;
-  const query = 'SELECT * FROM tasks WHERE mentee_id = ?';
-  connection.query(query, [mentee_id], (err, results) => {
-    if (err) return res.status(500).json({ message: 'Error fetching tasks' });
-    res.status(200).json(results);
+  const mentorQuery = 'SELECT id FROM mentors WHERE email = ?';
+  const menteeQuery = 'SELECT id FROM mentees WHERE email = ?';
+
+  connection.query(mentorQuery, [mentor_email], (err, mentorResults) => {
+    if (err || mentorResults.length === 0) {
+      return res.status(404).json({ message: 'Mentor not found' });
+    }
+    const mentor_id = mentorResults[0].id;
+
+    connection.query(menteeQuery, [mentee_email], (err2, menteeResults) => {
+      if (err2 || menteeResults.length === 0) {
+        return res.status(404).json({ message: 'Mentee not found' });
+      }
+      const mentee_id = menteeResults[0].id;
+
+      const insertQuery = `
+        INSERT INTO assignments (title, description, end_time, mentor_id, mentee_id, status)
+        VALUES (?, ?, ?, ?, ?, 'backlog')
+      `;
+
+      connection.query(insertQuery, [title, description, end_time, mentor_id, mentee_id], (err3, result) => {
+        if (err3) {
+          console.error("Error inserting assignment:", err3);
+          return res.status(500).json({ message: 'Error creating assignment', error: err3 });
+        }
+        res.status(201).json({ message: 'Assignment created', id: result.insertId });
+      });
+    });
   });
 });
 
-// For a mentor (all assigned tasks)
-app.get('/api/tasks/mentor/:mentor_id', (req, res) => {
-  const { mentor_id } = req.params;
-  const query = 'SELECT * FROM tasks WHERE mentor_id = ?';
-  connection.query(query, [mentor_id], (err, results) => {
-    if (err) return res.status(500).json({ message: 'Error fetching tasks' });
-    res.status(200).json(results);
-  });
-});
 
+// KANAN board 
+app.get('/api/tasks/by-mentor', (req, res) => {
+  const mentorEmail = req.query.email;
+  if (!mentorEmail) return res.status(400).json({ message: 'mentor_email required' });
 
-
-app.put('/api/tasks/:id', (req, res) => {
-  const { id } = req.params;
-  const { title, description, end_time } = req.body;
-  const query = 'UPDATE tasks SET title=?, description=?, end_time=? WHERE id=?';
-  connection.query(query, [title, description, end_time, id], (err) => {
-    if (err) return res.status(500).json({ message: 'Error updating task' });
-    res.status(200).json({ message: 'Task updated' });
-  });
-});
-app.put('/api/tasks/:id/status', (req, res) => {
-  const { id } = req.params;
-  const { status } = req.body;
-  const query = 'UPDATE tasks SET status=? WHERE id=?';
-  connection.query(query, [status, id], (err) => {
-    if (err) return res.status(500).json({ message: 'Error updating status' });
-    res.status(200).json({ message: 'Status updated' });
-  });
-});
-app.delete('/api/tasks/:id', (req, res) => {
-  const { id } = req.params;
-  const query = 'DELETE FROM tasks WHERE id=?';
-  connection.query(query, [id], (err) => {
-    if (err) return res.status(500).json({ message: 'Error deleting task' });
-    res.status(200).json({ message: 'Task deleted' });
-  });
-});
-app.post('/api/assignments', (req, res) => {
-  const { title, description, end_time, mentor_id, mentee_id } = req.body;
   const query = `
-    INSERT INTO assignments (title, description, end_time, mentor_id, mentee_id)
-    VALUES (?, ?, ?, ?, ?)
+    SELECT 
+  tasks.id, tasks.title, tasks.description, tasks.end_time, tasks.status, tasks.created_at,
+  CONCAT(m.first_name, ' ', m.last_name) AS mentee_name,
+  m.email AS mentee_email
+FROM tasks
+JOIN mentees m ON tasks.mentee_id = m.id
+JOIN mentors ON mentors.id = tasks.mentor_id
+WHERE mentors.email = ?
+
   `;
-  connection.query(query, [title, description, end_time, mentor_id, mentee_id], (err, result) => {
-    if (err) return res.status(500).json({ message: 'Error creating assignment' });
-    res.status(201).json({ message: 'Assignment created', id: result.insertId });
+
+  connection.query(query, [mentorEmail], (err, results) => {
+    if (err) {
+      console.error("Error fetching tasks by mentor:", err);
+      return res.status(500).json({ message: 'Server error' });
+    }
+    res.json(results);
+  });
+});
+
+app.get('/api/assignments/by-mentor', (req, res) => {
+  const mentorEmail = req.query.email;
+  if (!mentorEmail) {
+    return res.status(400).json({ message: 'mentor_email required' });
+  }
+
+  const query = `
+    SELECT 
+  assignments.id, assignments.title, assignments.description, assignments.end_time, assignments.status, assignments.created_at,
+  CONCAT(m.first_name, ' ', m.last_name) AS mentee_name,
+  m.email AS mentee_email
+FROM assignments
+JOIN mentees m ON assignments.mentee_id = m.id
+JOIN mentors ON mentors.id = assignments.mentor_id
+WHERE mentors.email = ?
+  `;
+
+  connection.query(query, [mentorEmail], (err, results) => {
+    if (err) {
+      console.error("Error fetching assignments by mentor:", err);
+      return res.status(500).json({ message: 'Server error' });
+    }
+    res.json(results);
   });
 });
 

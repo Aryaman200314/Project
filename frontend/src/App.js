@@ -10,7 +10,7 @@ import Timeline from './Compnents/Timeline'
 import TaskDetails from './Compnents/TaskDetails'
 import ContactMentor from './Compnents/ContactMentor'
 import Analysis from './Compnents/Analysis/Analysis'
-import MentorPortal from './Compnents/Mentor/MentorPortal'
+// import MentorPortal from './Compnents/Mentor/MentorPortal'
 import MentorHome from './Compnents/MentorPortal/MentorHome'
 import Task from './Compnents/MentorPortal/Task/Task'
 import MentorAssignment from './Compnents/MentorPortal/MentorAssignment/MentorAssignment'
@@ -24,6 +24,7 @@ import AddMentee from './Compnents/AdminPanel/AddMentee/AddMentee'
 import AllUsers from './Compnents/AdminPanel/AllUsers/AllUsers'
 import AdminAccountRequests from './Compnents/AdminPanel/AdminAccountRequest/AdminAccountRequests'
 import ChatApp from './Compnents/ChatBox/ChatBox'
+import MentorKanban from './Compnents/MentorPortal/Kanban/MentorKanban'
 
 function App() {
   return (
@@ -50,7 +51,7 @@ function App() {
 
 
           {/* mentors */}
-          <Route path="/kanban" element={<MentorPortal />} />
+          <Route path="/kanban" element={<MentorKanban/> } />
       
 
           <Route path="/mentor/home" element={<MentorHome />} />
