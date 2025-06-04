@@ -11,6 +11,9 @@ const UploadTask = () => {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('All');
   const [selected, setSelected] = useState(null);
+  const [showCheckin, setShowCheckin] = useState(false);
+  const [checkinText, setCheckinText] = useState('');
+
 
   useEffect(() => {
     // Fetch tasks assigned to the user
@@ -31,8 +34,62 @@ const UploadTask = () => {
       res = res.filter(t => t.title.toLowerCase().includes(search.toLowerCase()));
     }
     setFiltered(res);
-    if (res.length > 0 && !selected) setSelected(res[0]);
+
   }, [tasks, status, search]);
+  const updateTaskStatus = async (taskId, newStatus) => {
+    try {
+      await axios.post(`http://localhost:5000/api/tasks/update-status`, {
+        taskId,
+        status: newStatus
+      });
+      // Optimistically update state
+      setTasks(prev =>
+        prev.map(t => t.id === taskId ? { ...t, status: newStatus } : t)
+      );
+    } catch (e) {
+      // Handle error (optional: toast/error UI)
+      console.error("Failed to update status");
+    }
+  };
+  const handleSaveCheckin = async () => {
+    if (!selected) return;
+    await axios.post('http://localhost:5000/api/task-activity', {
+      task_id: selected.id,            // <-- must exist!
+      mentee_email: userEmail,         // <-- must exist!
+      action_type: "checkin",          // or whatever the action is
+      old_value: null,
+      new_value: checkinText,          // or whatever the new checkin is
+      description: "Daily check-in"    // (optional)
+    });    
+    setShowCheckin(false);
+    setCheckinText('');
+    // Optionally, refresh check-in timeline/records
+  };
+  const handleAskReview = async () => {
+    if (!selected) return;
+    // 1. Update status to 'review'
+    await axios.post('http://localhost:5000/api/tasks/update-status', {
+      taskId: selected.id,
+      status: 'review'
+    });
+  
+    // 2. Log the activity
+    await axios.post('http://localhost:5000/api/task-activity', {
+      task_id: selected.id,
+      mentee_email: userEmail,
+      action_type: "ask_review",
+      old_value: selected.status,
+      new_value: "review",
+      description: checkinText || "Asked mentor for review"
+    });
+  
+    // 3. Update local state for instant UI feedback
+    setTasks(prev =>
+      prev.map(t => t.id === selected.id ? { ...t, status: "review" } : t)
+    );
+    setShowCheckin(false);
+    setCheckinText('');
+  };
 
   return (
     <div className="taskpage-root">
@@ -61,11 +118,17 @@ const UploadTask = () => {
             <div
               className={`taskpage-item ${selected && task.id === selected.id ? "selected" : ""}`}
               key={task.id}
-              onClick={() => setSelected(task)}
+              onClick={() => {
+                setSelected(task);
+                if (task.status === "backlog") {
+                  updateTaskStatus(task.id, "new");
+                }
+              }}
             >
               <span className="task-title">{task.title}</span>
               <span className={`task-status status-${task.status}`}>{task.status}</span>
             </div>
+
           ))}
           {filtered.length === 0 && (
             <div className="taskpage-empty">No tasks found.</div>
@@ -101,6 +164,33 @@ const UploadTask = () => {
               <b>Due:</b>
               <span>{new Date(selected.end_time).toLocaleString()}</span>
             </div>
+            <div className="details-row">
+              <b>Daily Check-In:</b>
+              <button
+                className="btn-checkin"
+                onClick={() => setShowCheckin(true)}
+              >
+                Check-In
+              </button>
+            </div>
+            {showCheckin && (
+  <div className="checkin-box">
+    <textarea
+      className='test-area'
+      rows={4}
+      placeholder="Describe your progress for today..."
+      value={checkinText}
+      onChange={e => setCheckinText(e.target.value)}
+      style={{ width: '100%', padding: 8, borderRadius: 6, marginTop: 10 }}
+    />
+    <div style={{ marginTop: 10, display: 'flex', gap: 8 }}>
+      <button className="btn-primary" onClick={handleSaveCheckin}>Save</button>
+      <button className="btn-review" onClick={handleAskReview}>Ask for Review</button>
+      <button onClick={() => setShowCheckin(false)} className="btn-cancel">Cancel</button>
+    </div>
+  </div>
+)}
+
           </div>
         ) : (
           <div className="no-details">Select a task to see details</div>
@@ -111,152 +201,3 @@ const UploadTask = () => {
 };
 
 export default UploadTask;
-
-
-
-
-
-
-// import React, { useEffect, useState } from 'react';
-// import './UploadTask.css';
-// import { useNavigate } from 'react-router-dom';
-// import axios from 'axios';
-
-// const UploadTask = () => {
-//   const userEmail = localStorage.getItem('userEmail');
-//   const [mentor, setMentor] = useState('');
-//   const [title, setTitle] = useState('');
-//   const [description, setDescription] = useState('');
-//   const [keywords, setKeywords] = useState('');
-//   const [file, setFile] = useState(null);
-//   const [mentorOptions, setMentorOptions] = useState([]);
-//   const [assignedTasks, setAssignedTasks] = useState([]);
-//   const navigate = useNavigate();
-
-//   // Fetch mentor options for datalist
-//   useEffect(() => {
-//     axios.get('http://localhost:5000/api/mentors/list')
-//       .then(res => setMentorOptions(res.data))
-//       .catch(err => console.error('Failed to fetch mentors', err));
-//   }, []);
-
-//   // Fetch tasks assigned to the logged-in mentee (show latest 5)
-//   useEffect(() => {
-//     axios.get(`http://localhost:5000/api/tasks/by-mentee?email=${userEmail}`)
-//       .then(res => setAssignedTasks(res.data.slice(0, 5)))
-//       .catch(err => console.error("Failed to fetch assigned tasks:", err));
-//   }, [userEmail]);
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-
-//     if (!file || file.type !== 'application/pdf') {
-//       alert('Please upload a valid PDF file.');
-//       return;
-//     }
-
-//     const formData = new FormData();
-//     formData.append('mentor', mentor);
-//     formData.append('title', title);
-//     formData.append('description', description);
-//     formData.append('keywords', keywords);
-//     formData.append('email', userEmail); // mentee's email
-//     formData.append('file', file);
-
-//     try {
-//       const res = await axios.post('http://localhost:5000/api/upload/task', formData);
-//       alert(res.data.message || 'Task uploaded successfully');
-//       window.location.reload();
-//     } catch (err) {
-//       console.error('Upload failed:', err);
-//       alert('Upload failed. Try again.');
-//     }
-//   };
-
-//   return (
-//     <>
-//       <div className="top-bar">
-//         <h2>Tasks</h2>
-//       </div>
-
-//       <div className="upload-task-page">
-//         {/* Timeline Column */}
-//         <div className="timeline-container">
-//           <h3 className="timeline-title">Timeline <span className="five-days">Latest-5</span></h3>
-//           {assignedTasks.length > 0 ? (
-//             assignedTasks.map((item, index) => (
-//               <div key={index} className="timeline-entry">
-//                 <div className="date">{new Date(item.created_at || item.uploaded_at).toLocaleString()}</div>
-//                 <div className="title">{item.title}</div>
-//                 <div className="desc">
-//                   Assigned by: {item.mentor_first || item.mentor_name || item.mentor_email}
-//                 </div>
-//                 <div className="status">
-//                   Status: <b>{item.status?.toUpperCase()}</b>
-//                 </div>
-//               </div>
-//             ))
-//           ) : (
-//             <p className="no-tasks">No tasks assigned to you yet.</p>
-//           )}
-
-//           <div className="timeline-actions">
-//             <button className="btn-primary" onClick={() => navigate('/home')}>Back</button>
-//             <button className="btn-primary" onClick={() => navigate('/timeline')}>View all submissions</button>
-//           </div>
-//         </div>
-
-//         {/* Upload Form Column */}
-//         <div className="upload-form-container">
-//           <h2>Upload Task</h2>
-//           <form onSubmit={handleSubmit} className="upload-task-form">
-//             <input
-//               list="mentor-suggestions"
-//               placeholder="Start typing mentor name or email"
-//               value={mentor}
-//               onChange={(e) => setMentor(e.target.value)}
-//               required
-//             />
-//             <datalist id="mentor-suggestions">
-//               {mentorOptions.map(m => (
-//                 <option key={m.id} value={m.email}>
-//                   {m.name || `${m.first_name} ${m.last_name}`} ({m.email})
-//                 </option>
-//               ))}
-//             </datalist>
-
-//             <input
-//               type="text"
-//               placeholder="Task Title"
-//               value={title}
-//               onChange={(e) => setTitle(e.target.value)}
-//               required
-//             />
-//             <textarea
-//               placeholder="Task Description"
-//               value={description}
-//               onChange={(e) => setDescription(e.target.value)}
-//               required
-//             ></textarea>
-//             <input
-//               type="text"
-//               placeholder="Keywords (comma separated)"
-//               value={keywords}
-//               onChange={(e) => setKeywords(e.target.value)}
-//               required
-//             />
-//             <input
-//               type="file"
-//               accept=".pdf"
-//               onChange={(e) => setFile(e.target.files[0])}
-//               required
-//             />
-//             <button type="submit" className="btn-submit">Upload</button>
-//           </form>
-//         </div>
-//       </div>
-//     </>
-//   );
-// };
-
-// export default UploadTask;

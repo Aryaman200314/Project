@@ -101,15 +101,15 @@ body {
 }
 .taskpage-details {
   flex: 1;
-  min-width: 0;
-  min-height: 100vh;
-  background: #f8fbff;
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
-  padding: 3.5rem 3rem 2.5rem 3rem;
-  /* Remove card feeling by removing any box-shadow etc here */
+  padding: 3.5rem 2rem;
+  /* Add the following lines: */
+  height: calc(100vh - 40px);   /* Or whatever fits your header */
+  overflow-y: auto;
 }
+
 .details-card {
   background: transparent;
   width: 100%;
@@ -127,6 +127,8 @@ body {
   padding-top: 30px;
 
   padding-left: 30px;
+  max-height: 85vh; /* Or whatever looks good */
+  overflow-y: auto;
   /* Remove the card “floating box” look */
 }
 
@@ -154,11 +156,13 @@ body {
   background: #bbb;
   margin-right: 4px;
 }
-.status-backlog { background: #246bfd !important; }
-.status-done { background: #08ba00 !important; }
-.status-pending { background: #db8c00 !important; }
-.status-review { background: #b02bff !important; }
-.status-inprogress { background: #f04545 !important; }
+.status-backlog   { background: #eaf1ff; color: #246bfd; }
+.status-new       { background: #ffe9ed; color: #fd246b; }
+.status-inprogress { background: #fff3e0; color: #f0a202; }
+.status-review    { background: #ede9ff; color: #8b5cf6; }
+.status-pending   { background: #fff8e1; color: #db8c00; }
+.status-done      { background: #e2ffe7; color: #08ba00; }
+
 .details-desc {
   margin-left: .5rem;
   background: #f3f6fb;
@@ -190,4 +194,93 @@ body {
 .extra{
   font-size: small;
   color: grey;
+}
+.task-status-badge {
+  min-width: 54px;
+  display: inline-block;
+  text-align: center;
+  font-size: 0.83rem;
+  font-weight: 600;
+  padding: 3px 16px 3px 16px;
+  margin-left: auto;
+  border-radius: 1em;
+  letter-spacing: 0.02em;
+  background: #e5eaf1;
+  color: #246bfd;
+  box-shadow: 0 2px 6px rgba(36,107,253,0.04);
+  transition: background .13s, color .13s;
+  /* float: right; */ /* Use flexbox instead in parent */
+}
+
+/* STATUS COLORS */
+
+.task-status-badge {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 10px;
+}
+.checkin-popup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-top: 0.7rem;
+}
+.checkin-popup textarea {
+  width: 100%;
+  min-height: 70px;
+  border-radius: 7px;
+  border: 1.2px solid #dde3ea;
+  padding: 9px;
+  font-size: 1.07rem;
+  background: #f7fafd;
+  resize: vertical;
+}
+.checkin-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 0.2rem;
+}
+.checkin-btn {
+  background: #246bfd;
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  padding: 7px 19px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background .14s;
+}
+.review-btn {
+  background: #ff8800;
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  padding: 7px 19px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background .14s;
+}
+.cancel-btn {
+  background: #eaeaea;
+  color: #222;
+  font-weight: 500;
+  border: none;
+  padding: 7px 15px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background .14s;
+}
+.checkin-btn:disabled,
+.review-btn:disabled,
+.cancel-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.test-area {
+  max-width: 1200px;
+  height: 100px;
+  max-height: 200px;
+  min-height: 20px;
 }

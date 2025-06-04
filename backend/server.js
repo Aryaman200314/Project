@@ -1331,6 +1331,70 @@ app.get('/api/assignments/by-mentee', (req, res) => {
 
 
 
+//Update the status of task on open of the task from Backlog-->New on open of task 
+app.post('/api/tasks/update-status', (req, res) => {
+  const { taskId, status } = req.body;
+  if (!taskId || !status) return res.status(400).send("Missing data");
+  connection.query(
+    "UPDATE tasks SET status = ? WHERE id = ?",
+    [status, taskId],
+    (err, result) => {
+      if (err) return res.status(500).send("Failed to update");
+      res.json({ message: "Status updated" });
+    }
+  );
+});
+
+
+// Update activity logs of tasks when a user will make a check in this is the API of that 
+// POST /api/task-activity
+app.post('/api/task-activity', (req, res) => {
+  const {
+    task_id,
+    mentee_email,
+    action_type,     // e.g., "checkin" or "review"
+    old_value,       // optional
+    new_value,       // e.g., new check-in text
+    description      // optional/summary
+  } = req.body;
+
+  if (!task_id || !mentee_email) {
+    return res.status(400).json({ error: "task_id and mentee_email are required" });
+  }
+
+  connection.query(
+    `INSERT INTO task_activity_log (task_id, mentee_email, action_type, old_value, new_value, description)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+    [task_id, mentee_email, action_type, old_value, new_value, description],
+    (err, result) => {
+      if (err) {
+        return res.status(500).json({ error: 'Failed to log activity', details: err.message });
+      }
+      res.status(201).json({ message: 'Activity logged successfully', id: result.insertId });
+    }
+  );
+});
+
+
+//get activity logs 
+// GET /api/task-activity/:taskId
+app.get('/api/task-activity/:taskId', async (req, res) => {
+  const { taskId } = req.params;
+  try {
+    const [rows] = await connection.query(
+      `SELECT * FROM task_activity_log WHERE task_id = ? ORDER BY action_time ASC`,
+      [taskId]
+    );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch activity logs', details: err.message });
+  }
+});
+
+
+
+
+
 
 
 app.listen(PORT, () => {
