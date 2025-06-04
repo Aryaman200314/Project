@@ -28,15 +28,37 @@ const MentorKanban = () => {
   const handleDrop = (e, newStatus) => {
     const data = JSON.parse(e.dataTransfer.getData("text"));
     const { id, type } = data;
-
+  
+    let prevStatus = '';
     if (type === 'task') {
+      const current = tasks.find(item => item.id === id);
+      prevStatus = current.status;
       setTasks(prev => prev.map(item => item.id === id ? { ...item, status: newStatus } : item));
       axios.put(`http://localhost:5000/api/tasks/${id}/status`, { status: newStatus });
     } else {
+      const current = assignments.find(item => item.id === id);
+      prevStatus = current.status;
       setAssignments(prev => prev.map(item => item.id === id ? { ...item, status: newStatus } : item));
       axios.put(`http://localhost:5000/api/assignments/${id}/status`, { status: newStatus });
     }
+  
+    // Only update counts if status actually changes
+    if (prevStatus !== newStatus) {
+      // Decrement previous status
+      axios.patch(`http://localhost:5000/api/kanban-counts/increment`, {
+        type,
+        status: prevStatus,
+        delta: -1
+      });
+      // Increment new status
+      axios.patch(`http://localhost:5000/api/kanban-counts/increment`, {
+        type,
+        status: newStatus,
+        delta: 1
+      });
+    }
   };
+  
 
   const renderCard = (item, type) => (
     <div
@@ -58,22 +80,29 @@ const MentorKanban = () => {
 
   return (
     <>
-      <div className="kanban-board">
-        {statusColumns.map((status) => (
-          <div
-            key={status}
-            className="kanban-column"
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) => handleDrop(e, status)}
-          >
-            <h3 className="kanban-title">{status.toUpperCase()}</h3>
-            <div className="kanban-items">
-              {tasks.filter(task => task.status === status).map(t => renderCard(t, 'task'))}
-              {assignments.filter(a => a.status === status).map(a => renderCard(a, 'assignment'))}
-            </div>
-          </div>
-        ))}
+     <div className="kanban-board">
+  {statusColumns.map((status) => (
+    <div
+      key={status}
+      className="kanban-column"
+      onDragOver={(e) => e.preventDefault()}
+      onDrop={(e) => handleDrop(e, status)}
+    >
+      <h4 className="kanban-title">
+        {status.toUpperCase()} (
+          {
+            tasks.filter(task => task.status === status).length +
+            assignments.filter(a => a.status === status).length
+          }
+        )
+      </h4>
+      <div className="kanban-items">
+        {tasks.filter(task => task.status === status).map(t => renderCard(t, 'task'))}
+        {assignments.filter(a => a.status === status).map(a => renderCard(a, 'assignment'))}
       </div>
+    </div>
+  ))}
+</div>
 
       {selectedItem && (
         <div className="popup-overlay" onClick={() => setSelectedItem(null)}>

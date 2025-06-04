@@ -9,6 +9,7 @@ const fs = require('fs');
 const http = require('http');
 const socketIo = require('socket.io');
 const mysql = require('mysql');
+// app.use(express.json()); 
 // const mentorEmail = localStorage.getItem("userEmail");
 
 
@@ -1044,21 +1045,36 @@ app.post('/api/tasks/by-email', (req, res) => {
       }
       const mentee_id = menteeResults[0].id;
 
+      const status = 'backlog'; // initial status for new tasks
+
       const insertQuery = `
         INSERT INTO tasks (title, description, end_time, mentor_id, mentee_id, status)
-        VALUES (?, ?, ?, ?, ?, 'backlog')
+        VALUES (?, ?, ?, ?, ?, ?)
       `;
 
-      connection.query(insertQuery, [title, description, end_time, mentor_id, mentee_id], (err3, result) => {
+      connection.query(insertQuery, [title, description, end_time, mentor_id, mentee_id, status], (err3, result) => {
         if (err3) {
           console.error("Error inserting task:", err3);
           return res.status(500).json({ message: 'Error creating task', error: err3 });
         }
-        res.status(201).json({ message: 'Task created', id: result.insertId });
+
+        // Update the kanban_counts table after insert
+        connection.query(
+          'UPDATE kanban_counts SET count = count + 1 WHERE type = ? AND status = ?',
+          ['task', status],
+          (err4) => {
+            if (err4) {
+              console.error("Error updating kanban_counts:", err4);
+              return res.status(500).json({ message: 'Task created but failed to update counts', error: err4 });
+            }
+            res.status(201).json({ message: 'Task created', id: result.insertId });
+          }
+        );
       });
     });
   });
 });
+
 
 
 app.post('/api/assignments/by-email', (req, res) => {
@@ -1082,21 +1098,36 @@ app.post('/api/assignments/by-email', (req, res) => {
       }
       const mentee_id = menteeResults[0].id;
 
+      const status = 'backlog'; // initial status for new assignments
+
       const insertQuery = `
         INSERT INTO assignments (title, description, end_time, mentor_id, mentee_id, status)
-        VALUES (?, ?, ?, ?, ?, 'backlog')
+        VALUES (?, ?, ?, ?, ?, ?)
       `;
 
-      connection.query(insertQuery, [title, description, end_time, mentor_id, mentee_id], (err3, result) => {
+      connection.query(insertQuery, [title, description, end_time, mentor_id, mentee_id, status], (err3, result) => {
         if (err3) {
           console.error("Error inserting assignment:", err3);
           return res.status(500).json({ message: 'Error creating assignment', error: err3 });
         }
-        res.status(201).json({ message: 'Assignment created', id: result.insertId });
+
+        // Update the kanban_counts table after insert
+        connection.query(
+          'UPDATE kanban_counts SET count = count + 1 WHERE type = ? AND status = ?',
+          ['assignment', status],
+          (err4) => {
+            if (err4) {
+              console.error("Error updating kanban_counts:", err4);
+              return res.status(500).json({ message: 'Assignment created but failed to update counts', error: err4 });
+            }
+            res.status(201).json({ message: 'Assignment created', id: result.insertId });
+          }
+        );
       });
     });
   });
 });
+
 
 
 // KANAN board 
@@ -1188,6 +1219,33 @@ app.put('/api/assignments/:id/status', (req, res) => {
     res.json({ message: 'Assignment status updated successfully' });
   });
 });
+
+
+// udpating the total task and assignment table 
+
+app.get('/api/kanban-counts', (req, res) => {
+  connection.query(
+    'SELECT type, status, count FROM kanban_counts',
+    (err, results) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json(results);
+    }
+  );
+});
+
+
+app.patch('/api/kanban-counts/increment', (req, res) => {
+  const { type, status, delta } = req.body;
+  connection.query(
+    'UPDATE kanban_counts SET count = GREATEST(count + ?, 0) WHERE type = ? AND status = ?',
+    [delta, type, status],
+    (err, result) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ message: 'Count updated!' });
+    }
+  );
+});
+
 
 
 app.listen(PORT, () => {
