@@ -1247,6 +1247,53 @@ app.patch('/api/kanban-counts/increment', (req, res) => {
 });
 
 
+//Upload task per mentor for amalysis page 
+// Tasks uploaded per mentor (by count)
+// API to get number of tasks assigned per mentee for a mentor
+// tasks per mentee for a specific mentor by email
+app.get('/api/tasks/per-mentee', (req, res) => {
+  const { mentorEmail } = req.query;
+  if (!mentorEmail) return res.status(400).json({ error: "mentorEmail required" });
+
+  const sql = `
+    SELECT CONCAT(me.first_name, ' ', me.last_name) AS mentee, COUNT(t.id) AS count
+    FROM tasks t
+    JOIN mentors m ON t.mentor_id = m.id
+    JOIN mentees me ON t.mentee_id = me.id
+    WHERE m.email = ?
+    GROUP BY me.id, me.first_name, me.last_name
+    ORDER BY count DESC
+  `;
+  connection.query(sql, [mentorEmail], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+});
+
+
+// assignments for the same given by the mentors to all the mentees
+app.get('/api/assignments/per-mentee', (req, res) => {
+  const { mentorEmail } = req.query;
+  if (!mentorEmail) return res.status(400).json({ error: "mentorEmail required" });
+
+  const sql = `
+    SELECT CONCAT(me.first_name, ' ', me.last_name) AS mentee, COUNT(a.id) AS count
+    FROM assignments a
+    JOIN mentors m ON a.mentor_id = m.id
+    JOIN mentees me ON a.mentee_id = me.id
+    WHERE m.email = ?
+    GROUP BY me.id, me.first_name, me.last_name
+    ORDER BY count DESC
+  `;
+  connection.query(sql, [mentorEmail], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+});
+
+
+
+
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
