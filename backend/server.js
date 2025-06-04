@@ -1153,6 +1153,41 @@ WHERE mentors.email = ?
 
 
 
+// DRAG and GROP update 
+// for assignment and tasks 
+app.put('/api/tasks/:id/status', (req, res) => {
+  const taskId = req.params.id;
+  const { status } = req.body;
+
+  if (!status) return res.status(400).json({ message: 'Status is required' });
+
+  const query = 'UPDATE tasks SET status = ? WHERE id = ?';
+
+  connection.query(query, [status, taskId], (err, result) => {
+    if (err) {
+      console.error("Error updating task status:", err);
+      return res.status(500).json({ message: 'Server error' });
+    }
+    res.json({ message: 'Task status updated successfully' });
+  });
+});
+
+app.put('/api/assignments/:id/status', (req, res) => {
+  const assignmentId = req.params.id;
+  const { status } = req.body;
+
+  if (!status) return res.status(400).json({ message: 'Status is required' });
+
+  const query = 'UPDATE assignments SET status = ? WHERE id = ?';
+
+  connection.query(query, [status, assignmentId], (err, result) => {
+    if (err) {
+      console.error("Error updating assignment status:", err);
+      return res.status(500).json({ message: 'Server error' });
+    }
+    res.json({ message: 'Assignment status updated successfully' });
+  });
+});
 
 
 app.listen(PORT, () => {

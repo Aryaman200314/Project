@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './MentorKanban.css';
 
-const statusColumns = ['backlog', 'pending', 'review', 'done'];
+const statusColumns = ['new', 'inprogress', 'backlog', 'pending', 'review', 'done'];
 
 const MentorKanban = () => {
   const [tasks, setTasks] = useState([]);
   const [assignments, setAssignments] = useState([]);
-  const [selectedItem, setSelectedItem] = useState(null); // for popup
+  const [selectedItem, setSelectedItem] = useState(null);
   const mentorEmail = localStorage.getItem("userEmail");
 
   useEffect(() => {
@@ -23,10 +23,30 @@ const MentorKanban = () => {
     axios.get(`http://localhost:5000/api/assignments/by-mentor?email=${mentorEmail}`)
       .then(res => setAssignments(res.data))
       .catch(err => console.error("Error fetching assignments", err));
-  }, []);
+  }, [mentorEmail]);
+
+  const handleDrop = (e, newStatus) => {
+    const data = JSON.parse(e.dataTransfer.getData("text"));
+    const { id, type } = data;
+
+    if (type === 'task') {
+      setTasks(prev => prev.map(item => item.id === id ? { ...item, status: newStatus } : item));
+      axios.put(`http://localhost:5000/api/tasks/${id}/status`, { status: newStatus });
+    } else {
+      setAssignments(prev => prev.map(item => item.id === id ? { ...item, status: newStatus } : item));
+      axios.put(`http://localhost:5000/api/assignments/${id}/status`, { status: newStatus });
+    }
+  };
 
   const renderCard = (item, type) => (
-    <div key={`${type}-${item.id}`} className="kanban-card">
+    <div
+      key={`${type}-${item.id}`}
+      className="kanban-card"
+      draggable
+      onDragStart={(e) =>
+        e.dataTransfer.setData("text", JSON.stringify({ id: item.id, type }))
+      }
+    >
       <h4>{item.title}</h4>
       <p>{item.description}</p>
       <p><strong>Due:</strong> {new Date(item.end_time).toLocaleString()}</p>
@@ -40,7 +60,12 @@ const MentorKanban = () => {
     <>
       <div className="kanban-board">
         {statusColumns.map((status) => (
-          <div key={status} className="kanban-column">
+          <div
+            key={status}
+            className="kanban-column"
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => handleDrop(e, status)}
+          >
             <h3 className="kanban-title">{status.toUpperCase()}</h3>
             <div className="kanban-items">
               {tasks.filter(task => task.status === status).map(t => renderCard(t, 'task'))}
@@ -52,7 +77,7 @@ const MentorKanban = () => {
 
       {selectedItem && (
         <div className="popup-overlay" onClick={() => setSelectedItem(null)}>
-          <div className="popup-content" onClick={e => e.stopPropagation()}>
+          <div className="popup-content" onClick={(e) => e.stopPropagation()}>
             <h3>{selectedItem.title}</h3>
             <p><strong>Type:</strong> {selectedItem.type}</p>
             <p><strong>Description:</strong> {selectedItem.description}</p>
@@ -60,7 +85,6 @@ const MentorKanban = () => {
             <p><strong>Created:</strong> {new Date(selectedItem.created_at).toLocaleString()}</p>
             <p><strong>End Time:</strong> {new Date(selectedItem.end_time).toLocaleString()}</p>
             <p><strong>Mentee:</strong> {selectedItem.mentee_name || selectedItem.mentee_email}</p>
-
             <button onClick={() => setSelectedItem(null)} className="close-popup-btn">Close</button>
           </div>
         </div>

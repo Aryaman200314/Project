@@ -3,14 +3,14 @@
     justify-content: space-around;
     padding: 30px;
     gap: 20px;
-    background: #f8f9fa;
+    background: White;
     min-height: 90vh;
     font-family: 'Segoe UI', sans-serif;
   }
   
   .kanban-column {
     flex: 1;
-    background: #f4f4f4;
+    background: #faf8f8;
     border-radius: 10px;
     padding: 20px;
     min-height: 500px;
@@ -30,7 +30,19 @@
     display: flex;
     flex-direction: column;
     gap: 15px;
+    max-height: 750px; /* roughly 4 cards height */
+    overflow-y: auto;
+    padding-right: 8px;
   }
+  .kanban-items::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .kanban-items::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+  }
+  
   
   .kanban-card {
     background: white;
@@ -127,5 +139,7 @@
   .kanban-column:nth-child(2) .kanban-title { color: #f1c40f; }
   .kanban-column:nth-child(3) .kanban-title { color: #2ecc71; }
   .kanban-column:nth-child(4) .kanban-title { color: #17a2b8; }
+  .kanban-column:nth-child(5) .kanban-title { color: #174ab8; }
+  .kanban-column:nth-child(6) .kanban-title { color: grey; }
   
 
