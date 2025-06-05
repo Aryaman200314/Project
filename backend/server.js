@@ -1412,6 +1412,107 @@ app.get('/api/tasks/:id', (req, res) => {
 });
 
 
+// assignment status change on clicking 
+// Node.js/Express example:
+// Node.js/Express
+// server.js or routes file
+app.post('/api/assignments/:id/checkin', (req, res) => {
+  const assignment_id = req.params.id;
+  const { mentee_email, description } = req.body;
+
+  // 1. Get the current status (optional but allows to log old_value)
+  connection.query(
+    `SELECT status FROM assignments WHERE id = ?`,
+    [assignment_id],
+    (err, rows) => {
+      if (err) {
+        console.error('Failed to fetch current status:', err);
+        return res.status(500).json({ error: 'DB error' });
+      }
+      const oldStatus = rows[0] ? rows[0].status : null;
+
+      // 2. Update status to inprogress
+      connection.query(
+        `UPDATE assignments SET status = 'inprogress' WHERE id = ?`,
+        [assignment_id],
+        (err2, result) => {
+          if (err2) {
+            console.error('Failed to update status:', err2);
+            return res.status(500).json({ error: 'Status update failed' });
+          }
+          // 3. Log the check-in activity
+          connection.query(
+            `INSERT INTO assignment_activity_log (assignment_id, mentee_email, action_type, old_value, new_value, action_time, description)
+             VALUES (?, ?, 'checkin', ?, 'inprogress', NOW(), ?)`,
+            [assignment_id, mentee_email, oldStatus, description],
+            (err3, result2) => {
+              if (err3) {
+                console.error('Failed to log check-in:', err3);
+                return res.status(500).json({ error: 'Check-in log failed' });
+              }
+              res.json({ success: true, id: result2.insertId });
+            }
+          );
+        }
+      );
+    }
+  );
+});
+
+
+
+app.post('/api/assignments/:id/ask-review', (req, res) => {
+  const assignment_id = req.params.id;
+  const { mentee_email, description } = req.body;
+
+  // 1. Update the assignment status to 'review'
+  const updateSql = `UPDATE assignments SET status = 'review' WHERE id = ?`;
+
+  connection.query(updateSql, [assignment_id], (err, result) => {
+    if (err) {
+      console.error('Failed to update status:', err);
+      return res.status(500).json({ error: 'Failed to update assignment status.' });
+    }
+
+    // 2. Log the activity in assignment_activity_log
+    const logSql = `
+      INSERT INTO assignment_activity_log
+        (assignment_id, mentee_email, action_type, old_value, new_value, action_time, description)
+      VALUES (?, ?, 'ask_review', 'new', 'review', NOW(), ?)
+    `;
+
+    connection.query(logSql, [assignment_id, mentee_email, description], (err2, result2) => {
+      if (err2) {
+        console.error('Failed to log review request:', err2);
+        return res.status(500).json({ error: 'Failed to log review request.' });
+      }
+      res.json({ success: true, id: result2.insertId });
+    });
+  });
+});
+
+
+
+app.get('/api/assignments/:id/activity', (req, res) => {
+  const assignment_id = req.params.id;
+  const sql = `
+    SELECT * FROM assignment_activity_log
+    WHERE assignment_id = ?
+    ORDER BY action_time DESC
+  `;
+  connection.query(sql, [assignment_id], (err, rows) => {
+    if (err) {
+      console.error('Failed to fetch assignment activity:', err);
+      return res.status(500).json({ error: 'Failed to fetch timeline.' });
+    }
+    res.json(rows);
+  });
+});
+
+
+
+
+
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
