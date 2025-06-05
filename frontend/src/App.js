@@ -27,6 +27,7 @@ import ChatApp from './Compnents/ChatBox/ChatBox'
 import MentorKanban from './Compnents/MentorPortal/Kanban/MentorKanban'
 import TaskDetailPage from './Compnents/TaskDetail/TaskDetailPage'
 import MentorTaskDetailPage from './Compnents/MentorTaskDetailPage/MentorTaskDetailPage'
+import MentorAssignmentDetail from './Compnents/MentorPortal/MentorAssignmentDetails/MentorAssignmentDetails'
 
 function App() {
   return (
@@ -91,6 +92,8 @@ function App() {
         <Route path="/mentor/tasks/:id" element={<MentorTaskDetailPage/>} />
 
 
+        {/* Assignment details for mentor view  */}
+        <Route path="/mentor/assignments/:id" element={<MentorAssignmentDetail />} />
 
         </Routes>
 

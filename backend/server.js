@@ -1509,6 +1509,14 @@ app.get('/api/assignments/:id/activity', (req, res) => {
   });
 });
 
+app.get('/api/assignments/:id', (req, res) => {
+  const { id } = req.params;
+  connection.query('SELECT * FROM assignments WHERE id = ?', [id], (err, rows) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    if (!rows.length) return res.status(404).json({ error: 'Assignment not found' });
+    res.json(rows[0]);
+  });
+});
 
 
 

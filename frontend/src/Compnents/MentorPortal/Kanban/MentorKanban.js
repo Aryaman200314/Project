@@ -8,9 +8,7 @@ const statusColumns = ['new', 'inprogress', 'backlog', 'pending', 'review', 'don
 const MentorKanban = () => {
   const [tasks, setTasks] = useState([]);
   const [assignments, setAssignments] = useState([]);
-  const [selectedItem, setSelectedItem] = useState(null);
   const mentorEmail = localStorage.getItem("userEmail");
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -44,16 +42,12 @@ const MentorKanban = () => {
       setAssignments(prev => prev.map(item => item.id === id ? { ...item, status: newStatus } : item));
       axios.put(`http://localhost:5000/api/assignments/${id}/status`, { status: newStatus });
     }
-  
-    // Only update counts if status actually changes
     if (prevStatus !== newStatus) {
-      // Decrement previous status
       axios.patch(`http://localhost:5000/api/kanban-counts/increment`, {
         type,
         status: prevStatus,
         delta: -1
       });
-      // Increment new status
       axios.patch(`http://localhost:5000/api/kanban-counts/increment`, {
         type,
         status: newStatus,
@@ -61,7 +55,6 @@ const MentorKanban = () => {
       });
     }
   };
-  
 
   const renderCard = (item, type) => (
     <div
@@ -81,7 +74,11 @@ const MentorKanban = () => {
       <span className={`tag ${type}`}>{type.toUpperCase()}</span>
       <button
         className="view-btn"
-        onClick={() => navigate(`/mentor/tasks/${item.id}`)}
+        onClick={() =>
+          type === 'task'
+            ? navigate(`/mentor/tasks/${item.id}`)
+            : navigate(`/mentor/assignments/${item.id}`)
+        }
       >
         View Details
       </button>
@@ -89,46 +86,29 @@ const MentorKanban = () => {
   );
 
   return (
-    <>
-      <div className="kanban-board">
-        {statusColumns.map((status) => (
-          <div
-            key={status}
-            className="kanban-column"
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) => handleDrop(e, status)}
-          >
-            <h4 className="kanban-title">
-              {status.toUpperCase()} (
-                {
-                  tasks.filter(task => task.status === status).length +
-                  assignments.filter(a => a.status === status).length
-                }
-              )
-            </h4>
-            <div className="kanban-items">
-              {tasks.filter(task => task.status === status).map(t => renderCard(t, 'task'))}
-              {assignments.filter(a => a.status === status).map(a => renderCard(a, 'assignment'))}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {selectedItem && (
-        <div className="popup-overlay" onClick={() => setSelectedItem(null)}>
-          <div className="popup-content" onClick={(e) => e.stopPropagation()}>
-            <h3>{selectedItem.title}</h3>
-            <p><strong>Type:</strong> {selectedItem.type}</p>
-            <p><strong>Description:</strong> {selectedItem.description}</p>
-            <p><strong>Status:</strong> {selectedItem.status}</p>
-            <p><strong>Created:</strong> {new Date(selectedItem.created_at).toLocaleString()}</p>
-            <p><strong>End Time:</strong> {new Date(selectedItem.end_time).toLocaleString()}</p>
-            <p><strong>Mentee:</strong> {selectedItem.mentee_name || selectedItem.mentee_email}</p>
-            <button onClick={() => setSelectedItem(null)} className="close-popup-btn">Close</button>
+    <div className="kanban-board">
+      {statusColumns.map((status) => (
+        <div
+          key={status}
+          className="kanban-column"
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={(e) => handleDrop(e, status)}
+        >
+          <h4 className="kanban-title">
+            {status.toUpperCase()} (
+              {
+                tasks.filter(task => task.status === status).length +
+                assignments.filter(a => a.status === status).length
+              }
+            )
+          </h4>
+          <div className="kanban-items">
+            {tasks.filter(task => task.status === status).map(t => renderCard(t, 'task'))}
+            {assignments.filter(a => a.status === status).map(a => renderCard(a, 'assignment'))}
           </div>
         </div>
-      )}
-    </>
+      ))}
+    </div>
   );
 };
 
