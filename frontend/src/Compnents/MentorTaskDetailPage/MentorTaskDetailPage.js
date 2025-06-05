@@ -59,6 +59,7 @@ const MentorTaskDetailPage = () => {
               <div className="mentor-task-timeline-empty">No activity yet.</div>
             ) : (
               timeline.map(entry => (
+                <>
                 <div key={entry.id} className="mentor-task-timeline-row">
                   <span className={`mentor-task-timeline-dot mentor-task-timeline-dot-${entry.action_type}`}></span>
                   <span className="mentor-task-timeline-type">
@@ -69,8 +70,15 @@ const MentorTaskDetailPage = () => {
                   </span>
                   <span className="mentor-task-timeline-desc">{entry.description}</span>
                 </div>
+                  
+                  <div> 
+                  <p><span className="chnages-thah-aremade">Chnages that are made: </span>{entry.new_value}</p> 
+                  </div>
+                </>
               ))
+
             )}
+            
           </div>
         </div>
       </div>
