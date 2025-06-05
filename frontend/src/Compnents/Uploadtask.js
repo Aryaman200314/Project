@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import './UploadTask.css';
 import axios from 'axios';
+import { useNavigate } from "react-router-dom";
+
+// Inside your component
 
 const statusOptions = ["All", "Backlog", "Pending", "Review", "Inprogress", "Done"];
 
@@ -14,8 +17,9 @@ const UploadTask = () => {
   const [showCheckin, setShowCheckin] = useState(false);
   const [checkinText, setCheckinText] = useState('');
   const [timeline, setTimeline] = useState([]);
+  const [showDone, setShowDone] = useState(false);
 
-
+  const navigate = useNavigate();
   useEffect(() => {
     // Fetch tasks assigned to the user
     axios.get(`http://localhost:5000/api/tasks/by-mentee?email=${userEmail}`)
@@ -133,36 +137,38 @@ const UploadTask = () => {
           className="taskpage-search"
         />
         <div className="taskpage-list">
-          {filtered.map(task => (
-            <div
-              className={`taskpage-item ${selected && task.id === selected.id ? "selected" : ""}`}
-              key={task.id}
-              onClick={() => {
-                setSelected(task);
-                if (task.status === "backlog") {
-                  updateTaskStatus(task.id, "new");
-                }
-              }}
-            >
-              <span className="task-title">{task.title}</span>
-              <span className={`task-status status-${task.status}`}>{task.status}</span>
-            </div>
+  {filtered
+    .filter(task => task.status !== 'done')
+    .map(task => (
+      <div
+        className={`taskpage-item ${selected && task.id === selected.id ? "selected" : ""}`}
+        key={task.id}
+        onClick={() => {
+          setSelected(task);
+          if (task.status === "backlog") {
+            updateTaskStatus(task.id, "new");
+          }
+        }}
+      >
+        <span className="task-title">{task.title}</span>
+        <span className={`task-status status-${task.status}`}>{task.status}</span>
+      </div>
+    ))}
+  {filtered.filter(task => task.status !== 'done').length === 0 && (
+    <div className="taskpage-empty">No tasks found.</div>
+  )}
+</div>
 
-          ))}
-          {filtered.length === 0 && (
-            <div className="taskpage-empty">No tasks found.</div>
-          )}
-        </div>
         <div>
           {selected && timeline.length > 0 && (
             <div className="sidebar-timeline">
               <h4 className="mini-timeline-title">Recent Activity</h4>
               <ul className="mini-timeline-list">
-                {timeline.slice(0, 4).map(log => ( // show only last 4
+                {timeline.slice(0, 5).map(log => ( // show only last 4
                   <li key={log.id} className="mini-timeline-entry">
                     <span className="mini-timeline-action">{log.action_type}</span>
                     <span className="mini-timeline-time">
-                      {new Date(log.action_time).toLocaleDateString()} {/* or .toLocaleString() */}
+                      {log.action_time} {/* or .toLocaleString() */}
                     </span>
                   </li>
                 ))}
@@ -237,6 +243,26 @@ const UploadTask = () => {
 
           </>
         )}
+      </div>
+      <div>
+        {tasks.some(t => t.status === 'done') && (
+          <div className="done-tasks-dropbar">
+            <button className="done-task-btn" onClick={() => setShowDone(!showDone)}>
+              Done Tasks ({tasks.filter(t => t.status === 'done').length})
+            </button>
+            {showDone && (
+              <div className="done-tasks-list">
+                {tasks.filter(t => t.status === 'done').map(task => (
+                  <div key={task.id} className="done-task-item">
+                    <div id='done-task-btn-div' onClick={() => navigate(`/task/${task.id}`)}>{task.title} </div>
+                    {/* Optionally: add a way to view details or restore */}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
       </div>
     </div>
   );

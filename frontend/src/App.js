@@ -25,6 +25,8 @@ import AllUsers from './Compnents/AdminPanel/AllUsers/AllUsers'
 import AdminAccountRequests from './Compnents/AdminPanel/AdminAccountRequest/AdminAccountRequests'
 import ChatApp from './Compnents/ChatBox/ChatBox'
 import MentorKanban from './Compnents/MentorPortal/Kanban/MentorKanban'
+import TaskDetailPage from './Compnents/TaskDetail/TaskDetailPage'
+import MentorTaskDetailPage from './Compnents/MentorTaskDetailPage/MentorTaskDetailPage'
 
 function App() {
   return (
@@ -78,6 +80,17 @@ function App() {
 
           {/* Chat page  */}
         <Route path="/chat" element={<ChatApp userEmail={localStorage.getItem("userEmail")} />} />
+
+
+
+        {/* Task details */}
+        <Route path="/task/:id" element={<TaskDetailPage   />} />
+
+
+        {/*  Task detail for mentor task detail  */}
+        <Route path="/mentor/tasks/:id" element={<MentorTaskDetailPage/>} />
+
+
 
         </Routes>
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './MentorKanban.css';
+import { useNavigate } from 'react-router-dom';
 
 const statusColumns = ['new', 'inprogress', 'backlog', 'pending', 'review', 'done'];
 
@@ -9,6 +10,8 @@ const MentorKanban = () => {
   const [assignments, setAssignments] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
   const mentorEmail = localStorage.getItem("userEmail");
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!mentorEmail) {
@@ -72,37 +75,44 @@ const MentorKanban = () => {
       <h4>{item.title}</h4>
       <p>{item.description}</p>
       <p><strong>Due:</strong> {new Date(item.end_time).toLocaleString()}</p>
-      <p><strong>Mentee:</strong> {item.mentee_name || item.mentee_email}</p>
+      <p>
+        <strong>Mentee:</strong> {item.mentee_name || item.mentee_email || item.mentee_first || item.mentee}
+      </p>
       <span className={`tag ${type}`}>{type.toUpperCase()}</span>
-      <button className="view-btn" onClick={() => setSelectedItem({ ...item, type })}>View Details</button>
+      <button
+        className="view-btn"
+        onClick={() => navigate(`/mentor/tasks/${item.id}`)}
+      >
+        View Details
+      </button>
     </div>
   );
 
   return (
     <>
-     <div className="kanban-board">
-  {statusColumns.map((status) => (
-    <div
-      key={status}
-      className="kanban-column"
-      onDragOver={(e) => e.preventDefault()}
-      onDrop={(e) => handleDrop(e, status)}
-    >
-      <h4 className="kanban-title">
-        {status.toUpperCase()} (
-          {
-            tasks.filter(task => task.status === status).length +
-            assignments.filter(a => a.status === status).length
-          }
-        )
-      </h4>
-      <div className="kanban-items">
-        {tasks.filter(task => task.status === status).map(t => renderCard(t, 'task'))}
-        {assignments.filter(a => a.status === status).map(a => renderCard(a, 'assignment'))}
+      <div className="kanban-board">
+        {statusColumns.map((status) => (
+          <div
+            key={status}
+            className="kanban-column"
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => handleDrop(e, status)}
+          >
+            <h4 className="kanban-title">
+              {status.toUpperCase()} (
+                {
+                  tasks.filter(task => task.status === status).length +
+                  assignments.filter(a => a.status === status).length
+                }
+              )
+            </h4>
+            <div className="kanban-items">
+              {tasks.filter(task => task.status === status).map(t => renderCard(t, 'task'))}
+              {assignments.filter(a => a.status === status).map(a => renderCard(a, 'assignment'))}
+            </div>
+          </div>
+        ))}
       </div>
-    </div>
-  ))}
-</div>
 
       {selectedItem && (
         <div className="popup-overlay" onClick={() => setSelectedItem(null)}>

@@ -9,6 +9,7 @@ const fs = require('fs');
 const http = require('http');
 const socketIo = require('socket.io');
 const mysql = require('mysql');
+// const db = connection.promise();
 // app.use(express.json()); 
 // const mentorEmail = localStorage.getItem("userEmail");
 
@@ -1395,7 +1396,20 @@ app.get('/api/task-activity/:taskId', (req, res) => {
 });
 
 
-
+// get details about each task
+app.get('/api/tasks/:id', (req, res) => {
+  const { id } = req.params;
+  connection.query('SELECT * FROM tasks WHERE id = ?', [id], (err, rows) => {
+    if (err) {
+      console.error('Failed to fetch task:', err);
+      return res.status(500).json({ error: 'Failed to fetch task' });
+    }
+    if (!rows.length) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+    res.json(rows[0]);
+  });
+});
 
 
 

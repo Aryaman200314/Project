@@ -1,0 +1,137 @@
+.mentor-task-root {
+    min-height: 100vh;
+    background: #f7f9fb;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 0;
+  }
+  
+  .mentor-task-card {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 8px 36px rgba(17, 38, 146, 0.08), 0 1.5px 8px rgba(0,0,0,0.05);
+    max-width: 600px;
+    width: 100%;
+    padding: 36px 40px 30px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  
+  .mentor-task-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .mentor-task-back {
+    background: #f3f4f8;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 12px;
+    font-weight: 500;
+    font-size: 15px;
+    color: #505577;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .mentor-task-back:hover {
+    background: #e7eaf6;
+  }
+  
+  .mentor-task-title {
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: #2b3856;
+    margin-right: 18px;
+  }
+  
+  .mentor-task-status {
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 4px 15px;
+    border-radius: 12px;
+    margin-left: 8px;
+    text-transform: capitalize;
+  }
+  .mentor-task-status-done { background: #f3656b18; color: #f3656b; }
+  .mentor-task-status-inprogress { background: #3c8edb18; color: #3c8edb; }
+  .mentor-task-status-backlog { background: #ffa72618; color: #ffa726; }
+  .mentor-task-status-review { background: #b388ff18; color: #7c4dff; }
+  .mentor-task-status-pending { background: #ffd54f18; color: #ffd54f; }
+  .mentor-task-status-new { background: #4caf5018; color: #388e3c; }
+  
+  .mentor-task-section {
+    font-size: 1.05rem;
+  }
+  
+  .mentor-task-desc {
+    background: #f4f8fd;
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin: 8px 0 0 0;
+    color: #505577;
+    line-height: 1.55;
+  }
+  
+  .mentor-task-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.02rem;
+    margin: 0 0 10px 0;
+    color: #30314c;
+  }
+  
+  .mentor-task-timeline-list {
+    margin-top: 6px;
+  }
+  .mentor-task-timeline-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #f6f8fa;
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 9px;
+    box-shadow: 0 1px 3px rgba(10,16,34,0.04);
+  }
+  .mentor-task-timeline-dot {
+    height: 10px;
+    width: 10px;
+    border-radius: 50%;
+    margin-right: 2px;
+    display: inline-block;
+  }
+  .mentor-task-timeline-dot-ask_review { background: #407BFF; }
+  .mentor-task-timeline-dot-checkin { background: #35c48d; }
+  .mentor-task-timeline-dot-done { background: #ff5b5b; }
+  .mentor-task-timeline-dot-default { background: #e2e6ef; }
+  .mentor-task-timeline-type {
+    font-weight: 600;
+    color: #2b3856;
+    min-width: 85px;
+    text-transform: capitalize;
+  }
+  .mentor-task-timeline-date {
+    font-family: "JetBrains Mono", "Menlo", "Consolas", monospace;
+    font-size: 0.98rem;
+    color: #8a8a9a;
+    min-width: 140px;
+  }
+  .mentor-task-timeline-desc {
+    color: #434343;
+    margin-left: 10px;
+  }
+  .mentor-task-timeline-empty {
+    color: #b3b6be;
+    padding: 8px 0;
+  }
+  
+  .mentor-task-loading, .mentor-task-error {
+    text-align: center;
+    margin: 60px 0;
+    color: #407bff;
+    font-size: 1.2rem;
+  }
+  
