@@ -45,7 +45,7 @@ function App() {
           <Route path='/home' element={<Home/>}></Route>
           <Route path="/upload-task" element={<UploadTask />} />
           <Route path="/assignment-upload" element={<Assignment/>} />
-          <Route path="/view-records" element={<ViewRecords />} />
+          <Route path="/mentee/kanban" element={<ViewRecords />} />
           <Route path="/timeline" element={<Timeline/>} />
           <Route path='/details/:id' element={<TaskDetails/>}/>
           <Route path='/contact-mentor' element={<ContactMentor/>}/>

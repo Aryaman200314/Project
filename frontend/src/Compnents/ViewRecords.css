@@ -29,9 +29,9 @@
     cursor: pointer;
   }
   
-  .complete-btn:hover {
+  /* .complete-btn:hover {
     background-color: #0056b3;
-  }
+  } */
   .complete-btn:disabled {
     background-color: gray;
     cursor: not-allowed;
@@ -52,10 +52,10 @@
     transition: background-color 0.3s ease;
     z-index: 1000;
   }
-  
+/*   
   .back-btn:hover {
     background-color: #0056b3;
-  }
+  } */
     
   .toggle-switch {
     position: relative;
@@ -100,11 +100,23 @@
     border-radius: 50%;
   }
   
-  input:checked + .slider {
+  /* input:checked + .slider {
     background-color: #4caf50;
   }
   
   input:checked + .slider:before {
     transform: translateX(26px);
   }
-  
+   */
+  .heading-div {
+    margin-top: 20px;
+    margin-left: 40px;
+
+  }
+  .snap-mentee{
+    font-size: small;
+    color: grey;
+  }
+#column-all {
+  cursor: not-allowed;
+}

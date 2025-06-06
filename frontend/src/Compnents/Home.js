@@ -5,16 +5,20 @@ import axios from 'axios';
 import './Home.css';
 import logo from './logo.jpeg';
 import Notifications from './Notification/Notifications';
+import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
 import {
     taskData,
     assignmentData,
     getTaskCompletionRate,
     getAssignmentCompletionRate,
 } from './Data/performanceData';
-import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
+
 
 const taskCompletionRate = getTaskCompletionRate();
 const assignmentCompletionRate = getAssignmentCompletionRate();
+const COLORS = ["#457b9d", "#ffb703", "#43aa8b", "#ef476f", "#118ab2"];
+
+
 
 const Home = () => {
     const navigate = useNavigate();
@@ -26,8 +30,37 @@ const Home = () => {
     const [selectedMentor, setSelectedMentor] = useState(null);
     const [mentors, setMentors] = useState([]);
     const [allMentors, setAllMentors] = useState([]);
+    const [kanbanCounts, setKanbanCounts] = useState([]);
+    const getCount = (type, status) =>
+        kanbanCounts.find(c => c.type === type && c.status === status)?.count || 0;
 
-
+    const taskCompletionData = [
+        { name: "Completed", value: getCount("task", "done") },
+        { name: "Pending", value:
+            getCount("task", "new") +
+            getCount("task", "inprogress") +
+            getCount("task", "backlog") +
+            getCount("task", "pending") +
+            getCount("task", "review")
+          }
+      ];
+      
+      const assignmentCompletionData = [
+        { name: "Completed", value: getCount("assignment", "done") },
+        { name: "Pending", value:
+            getCount("assignment", "new") +
+            getCount("assignment", "inprogress") +
+            getCount("assignment", "backlog") +
+            getCount("assignment", "pending") +
+            getCount("assignment", "review")
+          }
+      ];
+      
+      // Optional: Calculate % completed
+      const taskTotal = taskCompletionData[0].value + taskCompletionData[1].value;
+      const assignmentTotal = assignmentCompletionData[0].value + assignmentCompletionData[1].value;
+      const taskCompletionRate = taskTotal > 0 ? Math.round((taskCompletionData[0].value / taskTotal) * 100) : 0;
+      const assignmentCompletionRate = assignmentTotal > 0 ? Math.round((assignmentCompletionData[0].value / assignmentTotal) * 100) : 0;   
 
     useEffect(() => {
         const fetchUserByEmail = async () => {
@@ -52,6 +85,12 @@ const Home = () => {
 
         fetchUserByEmail();
     }, []);
+
+    useEffect(() => {
+        axios.get("http://localhost:5000/api/kanban-counts")
+          .then(res => setKanbanCounts(res.data))
+          .catch(console.error);
+      }, []);
 
 
 
@@ -142,7 +181,7 @@ const Home = () => {
                         <button onClick={() => navigate('/upload-task')} className="action-btn">Task</button>
                         <button onClick={() => navigate('/assignment-upload')} className="action-btn">Assignment</button>
                         <button onClick={() => navigate('/timeline')} className="action-btn">Check Timeline</button>
-                        <button onClick={() => navigate('/view-records')} className="action-btn">View Records</button>
+                        <button onClick={() => navigate('/mentee/kanban')} className="action-btn">View Records</button>
                         <button onClick={() => navigate('/contact-mentor')} className="action-btn">Contact Mentor</button>
                         <button onClick={() => navigate('/analysis')} className="action-btn">Analysis</button>
                     </div>
@@ -152,53 +191,46 @@ const Home = () => {
                         <div className="completion-overview">
                             <h2 className="text-xl font-bold mb-4">Completion Overview</h2>
                             <hr />
-                            <div className="charts-container">
-                                <div className="chart-item">
-                                    <h3 className="text-lg font-semibold mb-2">Task Completion</h3>
-                                    <PieChart width={200} height={200}>
-                                        <Pie
-                                            data={[
-                                                { name: 'Completed', value: taskData.completed },
-                                                { name: 'Pending', value: taskData.pending },
-                                            ]}
-                                            cx="50%"
-                                            cy="50%"
-                                            outerRadius={70}
-                                            label
-                                            dataKey="value"
-                                        >
-                                            <Cell fill="#00C49F" />
-                                            <Cell fill="#FF8042" />
-                                        </Pie>
-                                        <Tooltip />
-                                        <Legend />
-                                    </PieChart>
-                                    <p className="text-sm mt-2">{taskCompletionRate}% completed</p>
-                                </div>
+                            <div className="chart-item">
+  <h3 className="text-lg font-semibold mb-2">Task Completion</h3>
+  <PieChart width={200} height={200}>
+    <Pie
+      data={taskCompletionData}
+      cx="50%"
+      cy="50%"
+      outerRadius={70}
+      label
+      dataKey="value"
+    >
+      <Cell fill={COLORS[0]} />
+      <Cell fill={COLORS[1]} />
+    </Pie>
+    <Tooltip />
+    <Legend />
+  </PieChart>
+  <p className="text-sm mt-2">{taskCompletionRate}% completed</p>
+</div>
 
-                                <div className="chart-item">
-                                    <h3 className="text-lg font-semibold mb-2">Assignment Completion</h3>
-                                    <PieChart width={200} height={200}>
-                                        <Pie
-                                            data={[
-                                                { name: 'Completed', value: assignmentData.completed },
-                                                { name: 'Pending', value: assignmentData.pending },
-                                            ]}
-                                            cx="50%"
-                                            cy="50%"
-                                            outerRadius={70}
-                                            label
-                                            dataKey="value"
-                                        >
-                                            <Cell fill="#8884d8" />
-                                            <Cell fill="#FFBB28" />
-                                        </Pie>
-                                        <Tooltip />
-                                        <Legend />
-                                    </PieChart>
-                                    <p className="text-sm mt-2">{assignmentCompletionRate}% completed</p>
-                                </div>
-                            </div>
+<div className="chart-item">
+  <h3 className="text-lg font-semibold mb-2">Assignment Completion</h3>
+  <PieChart width={200} height={200}>
+    <Pie
+      data={assignmentCompletionData}
+      cx="50%"
+      cy="50%"
+      outerRadius={70}
+      label
+      dataKey="value"
+    >
+      <Cell fill={COLORS[2]} />
+      <Cell fill={COLORS[3]} />
+    </Pie>
+    <Tooltip />
+    <Legend />
+  </PieChart>
+  <p className="text-sm mt-2">{assignmentCompletionRate}% completed</p>
+</div>
+
                             <button onClick={() => navigate('/analysis')}>View</button>
                         </div>
                     </div>

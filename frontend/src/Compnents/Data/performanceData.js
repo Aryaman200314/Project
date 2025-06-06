@@ -6,13 +6,13 @@ const taskData = {
     completed: 7,
     pending: 3,
     perMentor: [
-      { mentor: "John", tasks: 6 },
-      { mentor: "Jane", tasks: 4 },
+      { mentor: "John", tasks: 600 },
+      { mentor: "Jane", tasks: 400 },
     ],
     weeklySubmissions: [
-      { week: "Week 1", tasks: 2 },
-      { week: "Week 2", tasks: 3 },
-      { week: "Week 3", tasks: 2 },
+      { week: "Week 1", tasks: 200 },
+      { week: "Week 2", tasks: 300 },
+      { week: "Week 3", tasks: 200 },
     ],
   };
   

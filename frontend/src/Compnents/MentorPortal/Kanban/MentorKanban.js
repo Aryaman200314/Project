@@ -57,6 +57,7 @@ const MentorKanban = () => {
   };
 
   const renderCard = (item, type) => (
+    
     <div
       key={`${type}-${item.id}`}
       className="kanban-card"
@@ -86,6 +87,10 @@ const MentorKanban = () => {
   );
 
   return (
+    <>
+    <div className='heading-kanban'>
+      <h1>Kanban <span className='span-mentor'>Mentor</span></h1>
+    </div>
     <div className="kanban-board">
       {statusColumns.map((status) => (
         <div
@@ -109,6 +114,7 @@ const MentorKanban = () => {
         </div>
       ))}
     </div>
+    </>
   );
 };
 

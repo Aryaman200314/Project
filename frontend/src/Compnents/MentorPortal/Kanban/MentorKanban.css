@@ -143,3 +143,11 @@
   .kanban-column:nth-child(6) .kanban-title { color: grey; }
   
 
+.heading-kanban {
+  margin-top: 20px;
+  margin-left: 40px;
+}
+.span-mentor {
+  font-size: small;
+  color: grey;
+}

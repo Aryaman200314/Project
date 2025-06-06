@@ -62,7 +62,6 @@ const AssignPage = () => {
       <div className="assign-container">
         <h2 className="title">Assign Mentees to Mentor</h2>
         <hr />
-
         {error && <p className="error-text">{error}</p>}
 
         <div className="form-group">
@@ -112,23 +111,7 @@ const AssignPage = () => {
           disabled={loading || !selectedMentor || selectedMentees.length === 0}
         >
           {loading ? 'Assigning...' : 'Assign'}
-        </button>
-
-        <div style={{ marginTop: '10px', position: 'relative' }}>
-          <button onClick={() => setDropdownOpen(!dropdownOpen)} className="btn btn-primary">
-            Add Users ▾
-          </button>
-
-          {dropdownOpen && (
-            <div className="dropdown-menu show" style={{ display: 'block', position: 'absolute' }}>
-              <button className="dropdown-item" onClick={() => navigate('/admin/add/mentor')}>Add Mentor</button>
-              <button className="dropdown-item" onClick={() => navigate('/admin/add/mentee')}>Add Mentee</button>
-            </div>
-          )}
-          <button onClick={() => navigate('/admin/all/users')}> All users</button>
-        </div>
-                  
-        
+        </button>        
       </div>
 
       <MentorMenteeDiagram refreshTrigger={refreshCount} />
